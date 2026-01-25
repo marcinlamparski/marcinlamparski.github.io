@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Edukacyjny - Marcin Lamparski</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+            margin-bottom: 10px;
+        }
+
+        header .author {
+            font-size: 1.1em;
+            opacity: 0.85;
+            font-style: italic;
+            margin-bottom: 20px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding: 15px 0;
+        }
+
+        header .description {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 60px 40px;
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .info-boxes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .info-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .info-box p {
+            color: #555;
+            line-height: 1.7;
+            font-size: 1em;
+        }
+
+        .courses-section {
+            margin-bottom: 60px;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            transition: all 0.3s ease;
+            border-top: 4px solid #667eea;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.25);
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .course-header .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .course-header h3 {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+
+        .course-header .course-type {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .course-body {
+            padding: 25px;
+        }
+
+        .course-body p {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .course-body .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: #f0f0f0;
+            color: #667eea;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .course-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .course-link:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .course-link:active {
+            transform: scale(0.98);
+        }
+
+        .empty-slot {
+            background: #f9f9f9;
+            border: 2px dashed #ddd;
+            padding: 25px;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-slot p {
+            margin: 0;
+            font-size: 0.95em;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .stat {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .footer-section {
+            background: #f5f5f5;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-section p {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .footer-section .contact {
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 20px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .course-header .icon {
+                font-size: 2.5em;
+            }
+        }
+
+        /* Animacja ładowania */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .course-card {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .course-card:nth-child(1) { animation-delay: 0.1s; }
+        .course-card:nth-child(2) { animation-delay: 0.2s; }
+        .course-card:nth-child(3) { animation-delay: 0.3s; }
+        .course-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .info-box {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .info-box:nth-child(1) { animation-delay: 0.1s; }
+        .info-box:nth-child(2) { animation-delay: 0.2s; }
+        .info-box:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Portal Edukacyjny</h1>
+            <div class="subtitle">Materiały do Nauki Informatyki</div>
+            <div class="author">Marcin Lamparski - Nauczyciel Informatyki</div>
+            <div class="description">
+                <p>Witaj na moim portalu edukacyjnym! Tutaj znajdziesz skondensowane materiały do nauki przedmiotów informatycznych, w tym zagadnienia związane z kwalifikacją zawodową <strong>INF.03</strong>.</p>
+            </div>
+        </header>
+
+        <div class="content">
+            <!-- INFO BOXES -->
+            <div class="info-boxes">
+                <div class="info-box">
+                    <h3>📚 O Portalu</h3>
+                    <p>Portal przeznaczony dla uczniów technikum i szkół ponadgimnazjalnych. Wszystkie materiały zostały przygotowane z uwzględnieniem aktualnych standardów edukacyjnych i wymagań kwalifikacyjnych.</p>
+                </div>
+                <div class="info-box">
+                    <h3>🎯 Kwalifikacja INF.03</h3>
+                    <p>Materiały obejmują zagadnienia z zakresu grafiki rastrowej, wizualizacji danych, obróbki obrazów cyfrowych oraz innych aspektów zawodu technika informatyka.</p>
+                </div>
+                <div class="info-box">
+                    <h3>✨ Dlaczego ten portal?</h3>
+                    <p>Wszystkie kursy są interaktywne, zawierają praktyczne przykłady i testy wiedzy. Idealne do samodzielnej nauki, przygotowania do egzaminów oraz uzupełniania wiadomości.</p>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="stats-section">
+                <h2 style="margin-top: 0;">Statystyki Portalu</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">Sekcji kursu</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">10</div>
+                        <div class="stat-label">Pytań testowych</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">1+</div>
+                        <div class="stat-label">Kurs dostępny</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">∞</div>
+                        <div class="stat-label">Możliwości nauki</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COURSES SECTION -->
+            <div class="courses-section">
+                <h2 class="section-title">📖 Dostępne Kursy</h2>
+                <div class="course-grid">
+                    <!-- Kurs 1 -->
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="icon">📊</div>
+                            <h3>Grafika Rastrowa</h3>
+                            <div class="course-type">Kwalifikacja INF.03</div>
+                        </div>
+                        <div class="course-body">
+                            <p>Komprehensywny kurs obejmujący wszystkie aspekty grafiki rastrowej - od podstaw pikseli, przez formaty plików, modele kolorów, aż po zaawansowane techniki edycji.</p>
+                            <div class="tags">
+                                <span class="tag">Grafika</span>
+                                <span class="tag">RGB/CMYK</span>
+                                <span class="tag">Kompresja</span>
+                                <span class="tag">Metadane</span>
+                            </div>
+                            <a href="https://marcinlamparski.github.io/kurs_grafiki_rastrowej.html" class="course-link">Przejdź do kursu →</a>
+                        </div>
+                    </div>
+
+                    <!-- Szablon dla nowych kursów -->
+                    <div class="course-card">
+                        <div class="course-header" style="background: linear-gradient(135deg, #ccc 0%, #999 100%); cursor: not-allowed;">
+                            <div class="icon">🔒</div>
+                            <h3>Nowy Kurs</h3>
+                            <div class="course-type">Wkrótce</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="empty-slot">
+                                <p>📌 Miejsce na nowy kurs</p>
+                                <p style="font-size: 0.85em; margin-top: 8px; opacity: 0.7;">Będę dodawać nowe materiały edukacyjne</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Szablon dla nowych kursów -->
+                    <div class="course-card">
+                        <div class="course-header" style="background: linear-gradient(135deg, #ccc 0%, #999 100%); cursor: not-allowed;">
+                            <div class="icon">🔒</div>
+                            <h3>Nowy Kurs</h3>
+                            <div class="course-type">Wkrótce</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="empty-slot">
+                                <p>📌 Miejsce na nowy kurs</p>
+                                <p style="font-size: 0.85em; margin-top: 8px; opacity: 0.7;">Będę dodawać nowe materiały edukacyjne</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Szablon dla nowych kursów -->
+                    <div class="course-card">
+                        <div class="course-header" style="background: linear-gradient(135deg, #ccc 0%, #999 100%); cursor: not-allowed;">
+                            <div class="icon">🔒</div>
+                            <h3>Nowy Kurs</h3>
+                            <div class="course-type">Wkrótce</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="empty-slot">
+                                <p>📌 Miejsce na nowy kurs</p>
+                                <p style="font-size: 0.85em; margin-top: 8px; opacity: 0.7;">Będę dodawać nowe materiały edukacyjne</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <p><strong>Portal Edukacyjny Marcina Lamparskiego</strong></p>
+            <p>Materiały przeznaczone dla uczniów technikum i szkół ponadgimnazjalnych</p>
+            <div class="contact">
+                <p>Licencja: Materiały edukacyjne do użytku niekomercyjnego</p>
+                <p>© 2026 Wszystkie prawa zastrzeżone</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dynamiczna obsługa linków kursów (opcjonalnie)
+        document.querySelectorAll('.course-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Możesz dodać tutaj animację przed przejściem
+                console.log('Przejście do kursu: ' + this.href);
+            });
+        });
+
+        // Smooth scroll do sekcji (jeśli będą kotwice w menu)
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
