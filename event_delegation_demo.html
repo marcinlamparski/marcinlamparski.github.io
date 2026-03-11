@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>forEach vs Delegacja zdarzeń</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2e3e;
+    --accent-a: #f97316;
+    --accent-b: #22d3ee;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --code-bg: #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 48px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto 48px;
+  }
+
+  @media (max-width: 720px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-header.orange { border-left: 4px solid var(--accent-a); }
+  .card-header.cyan   { border-left: 4px solid var(--accent-b); }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .badge.orange { background: rgba(249,115,22,0.15); color: var(--accent-a); }
+  .badge.cyan   { background: rgba(34,211,238,0.15); color: var(--accent-b); }
+
+  .card-title { font-size: 1rem; font-weight: 700; }
+
+  /* Galeria demo */
+  .gallery-demo {
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .thumb {
+    width: 70px; height: 70px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    user-select: none;
+    position: relative;
+  }
+  .thumb:hover { transform: scale(1.08); }
+  .thumb.active-a { border-color: var(--accent-a); box-shadow: 0 0 12px rgba(249,115,22,0.4); }
+  .thumb.active-b { border-color: var(--accent-b); box-shadow: 0 0 12px rgba(34,211,238,0.4); }
+
+  /* Listener-count badge on each thumb */
+  .thumb .lcount {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--accent-a);
+    color: #000;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 700;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lcount.cyan-badge { background: var(--accent-b); }
+
+  .result-box {
+    margin: 0 20px 16px;
+    padding: 12px 16px;
+    background: var(--code-bg);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    min-height: 44px;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+  .result-box.lit-a { color: var(--accent-a); }
+  .result-box.lit-b { color: var(--accent-b); }
+
+  /* Listener counter */
+  .listener-info {
+    margin: 0 20px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .listener-count {
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 2px 10px;
+    border-radius: 6px;
+  }
+  .listener-count.orange { color: var(--accent-a); background: rgba(249,115,22,0.1); }
+  .listener-count.cyan   { color: var(--accent-b); background: rgba(34,211,238,0.1); }
+
+  /* Code block */
+  .code-section {
+    border-top: 1px solid var(--border);
+    padding: 0;
+  }
+
+  .code-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-tab {
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s;
+  }
+  .code-tab.active-tab-a { color: var(--accent-a); border-bottom-color: var(--accent-a); }
+  .code-tab.active-tab-b { color: var(--accent-b); border-bottom-color: var(--accent-b); }
+
+  pre {
+    margin: 0;
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+    background: var(--code-bg);
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .cm  { color: #64748b; }   /* comment */
+  .kw  { color: #c084fc; }   /* keyword */
+  .fn  { color: #60a5fa; }   /* function */
+  .str { color: #86efac; }   /* string */
+  .num { color: #fbbf24; }   /* number */
+  .hi-a { color: var(--accent-a); font-weight: 700; }   /* highlight orange */
+  .hi-b { color: var(--accent-b); font-weight: 700; }   /* highlight cyan */
+
+  /* Wyjaśnienie na dole */
+  .explainer {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+  }
+
+  .explainer h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .compare-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .compare-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .col-a { color: var(--accent-a); font-family: 'JetBrains Mono', monospace; }
+  .compare-table .col-b { color: var(--accent-b); font-family: 'JetBrains Mono', monospace; }
+
+  .tip {
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: rgba(34,211,238,0.06);
+    border-left: 3px solid var(--accent-b);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #94a3b8;
+  }
+  .tip strong { color: var(--accent-b); }
+</style>
+</head>
+<body>
+
+<h1>forEach vs. Delegacja zdarzeń</h1>
+<p class="subtitle">// dwa sposoby obsługi kliknięcia w grupie elementów</p>
+
+<div class="columns">
+
+  <!-- KARTA A: forEach -->
+  <div class="card">
+    <div class="card-header orange">
+      <span class="badge orange">SPOSÓB 1</span>
+      <span class="card-title">forEach + addEventListener</span>
+    </div>
+
+    <div class="gallery-demo" id="gallery-a">
+      <div class="thumb" style="background:#1e293b" data-name="Góry">🏔️<span class="lcount">1</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Jezioro">🌊<span class="lcount">1</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Las">🌲<span class="lcount">1</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Plaża">🏖️<span class="lcount">1</span></div>
+    </div>
+
+    <div class="result-box" id="result-a">← kliknij miniaturkę</div>
+
+    <div class="listener-info">
+      Liczba listenerów:
+      <span class="listener-count orange" id="count-a">4</span>
+      <span>(po 1 na każdym elemencie)</span>
+    </div>
+
+    <div class="code-section">
+      <div class="code-tabs">
+        <span class="code-tab active-tab-a">skrypt.js</span>
+      </div>
+      <pre><span class="kw">const</span> miniatury = <span class="fn">querySelectorAll</span>(<span class="str">'#galeria img'</span>);
+
+<span class="hi-a">miniatury.<span class="fn">forEach</span>(<span class="kw">function</span>(img, idx) {</span>
+  <span class="hi-a">img.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>() {</span>
+    <span class="fn">pokazZdjecie</span>(idx);
+  <span class="hi-a">});</span>
+<span class="hi-a">});</span>
+
+<span class="cm">// ⚠ Dla 4 zdjęć → 4 listenery
+// ⚠ Dla 100 zdjęć → 100 listenerów</span></pre>
+    </div>
+  </div>
+
+  <!-- KARTA B: Delegacja -->
+  <div class="card">
+    <div class="card-header cyan">
+      <span class="badge cyan">SPOSÓB 2</span>
+      <span class="card-title">Delegacja zdarzeń</span>
+    </div>
+
+    <div class="gallery-demo" id="gallery-b">
+      <div class="thumb" style="background:#1e293b" data-name="Góry">🏔️<span class="lcount cyan-badge">0</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Jezioro">🌊<span class="lcount cyan-badge">0</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Las">🌲<span class="lcount cyan-badge">0</span></div>
+      <div class="thumb" style="background:#1e293b" data-name="Plaża">🏖️<span class="lcount cyan-badge">0</span></div>
+    </div>
+
+    <div class="result-box" id="result-b">← kliknij miniaturkę</div>
+
+    <div class="listener-info">
+      Liczba listenerów:
+      <span class="listener-count cyan" id="count-b">1</span>
+      <span>(1 na rodzicu — zawsze!)</span>
+    </div>
+
+    <div class="code-section">
+      <div class="code-tabs">
+        <span class="code-tab active-tab-b">skrypt.js</span>
+      </div>
+      <pre><span class="kw">const</span> galeria = <span class="fn">getElementById</span>(<span class="str">'#galeria'</span>);
+<span class="kw">const</span> miniatury = <span class="fn">querySelectorAll</span>(<span class="str">'img'</span>);
+
+<span class="hi-b">galeria.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, <span class="kw">function</span>(e) {</span>
+  <span class="hi-b"><span class="kw">if</span> (e.target.tagName === <span class="str">'IMG'</span>) {</span>
+    <span class="kw">const</span> idx = [...miniatury].<span class="fn">indexOf</span>(e.target);
+    <span class="fn">pokazZdjecie</span>(idx);
+  <span class="hi-b">}</span>
+<span class="hi-b">});</span>
+
+<span class="cm">// ✓ Dla 4 zdjęć → 1 listener
+// ✓ Dla 100 zdjęć → nadal 1 listener</span></pre>
+    </div>
+  </div>
+
+</div>
+
+<!-- Tabela porównawcza -->
+<div class="explainer">
+  <h2>📊 Porównanie</h2>
+  <table class="compare-table">
+    <tr>
+      <th>Cecha</th>
+      <th style="color:var(--accent-a)">forEach + addEventListener</th>
+      <th style="color:var(--accent-b)">Delegacja zdarzeń</th>
+    </tr>
+    <tr>
+      <td>Liczba listenerów</td>
+      <td class="col-a">tyle co elementów (N)</td>
+      <td class="col-b">zawsze 1</td>
+    </tr>
+    <tr>
+      <td>Zużycie pamięci</td>
+      <td class="col-a">rośnie z liczbą elementów</td>
+      <td class="col-b">stałe</td>
+    </tr>
+    <tr>
+      <td>Dynamiczne elementy</td>
+      <td class="col-a">trzeba ponownie podpiąć</td>
+      <td class="col-b">działa automatycznie</td>
+    </tr>
+    <tr>
+      <td>Trudność kodu</td>
+      <td class="col-a">prostsza (brak e.target)</td>
+      <td class="col-b">wymaga sprawdzenia e.target</td>
+    </tr>
+    <tr>
+      <td>Zalecane gdy...</td>
+      <td class="col-a">mała, statyczna lista (ok na egzaminie)</td>
+      <td class="col-b">duże listy, galerie, dynamiczne treści</td>
+    </tr>
+  </table>
+
+  <div class="tip">
+    <strong>Jak działa delegacja?</strong> Zdarzenia w DOM „bąbelkują" w górę drzewa —
+    kliknięcie na <code>&lt;img&gt;</code> automatycznie dociera też do rodzica <code>&lt;section&gt;</code>.
+    Dzięki temu jeden listener na rodzicu „słyszy" kliknięcia wszystkich dzieci.
+    Właściwość <strong>e.target</strong> mówi, który konkretny element faktycznie kliknął użytkownik.
+  </div>
+</div>
+
+<script>
+  // ── SPOSÓB 1: forEach ────────────────────────────────────────────
+  const thumbsA = document.querySelectorAll('#gallery-a .thumb');
+  const resultA = document.getElementById('result-a');
+
+  thumbsA.forEach(function(thumb, idx) {
+    thumb.addEventListener('click', function() {
+      thumbsA.forEach(t => t.classList.remove('active-a'));
+      thumb.classList.add('active-a');
+      resultA.textContent = '✓ Kliknięto: ' + thumb.dataset.name + '  (listener #' + (idx+1) + ' z 4)';
+      resultA.className = 'result-box lit-a';
+    });
+  });
+
+  // ── SPOSÓB 2: Delegacja ──────────────────────────────────────────
+  const galleryB = document.getElementById('gallery-b');
+  const thumbsB  = document.querySelectorAll('#gallery-b .thumb');
+  const resultB  = document.getElementById('result-b');
+
+  galleryB.addEventListener('click', function(e) {
+    const thumb = e.target.closest('.thumb');
+    if (!thumb) return;
+
+    thumbsB.forEach(t => t.classList.remove('active-b'));
+    thumb.classList.add('active-b');
+
+    const idx = [...thumbsB].indexOf(thumb);
+    resultB.textContent = '✓ Kliknięto: ' + thumb.dataset.name + '  (jeden listener obsłużył wszystko)';
+    resultB.className = 'result-box lit-b';
+  });
+</script>
+</body>
+</html>
