@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metody sortowania — INF.03</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito Sans', 'Segoe UI', -apple-system, sans-serif;
+      background: linear-gradient(180deg, #F0F4FF 0%, #FAFBFF 40%, #fff 100%);
+      min-height: 100vh;
+    }
+    button { font-family: inherit; }
+
+    .header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      padding: 32px 24px 28px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .header::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 50%, #3B82F620, transparent 50%),
+                  radial-gradient(circle at 80% 50%, #9333EA18, transparent 50%);
+    }
+    .header-inner { position: relative; }
+    .header-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 999px;
+      background: #3B82F620; border: 1px solid #3B82F640;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+      color: #93C5FD; margin-bottom: 12px;
+    }
+    .header h1 {
+      margin: 0 0 6px; font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(24px, 5vw, 34px); color: #F8FAFC;
+      letter-spacing: -0.02em; line-height: 1.15;
+    }
+    .header p {
+      margin: 0 auto; font-size: 14.5px; color: #94A3B8;
+      max-width: 520px; line-height: 1.5;
+    }
+
+    .concepts-bar {
+      max-width: 720px; margin: -16px auto 0; padding: 0 16px;
+      position: relative; z-index: 2;
+    }
+    .concepts-grid {
+      background: #fff; border-radius: 14px; padding: 16px 20px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06); border: 1px solid #E2E8F0;
+    }
+    .concept { text-align: center; }
+    .concept-emoji { font-size: 22px; margin-bottom: 4px; }
+    .concept-label { font-weight: 800; font-size: 13px; color: #0F172A; }
+    .concept-desc { font-size: 11.5px; color: #64748B; line-height: 1.4; margin-top: 2px; }
+
+    .cards-container {
+      max-width: 720px; margin: 24px auto 0; padding: 0 16px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .sort-card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      transition: all 0.3s ease; border: 2px solid #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .sort-card.open { box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
+    .sort-card-header {
+      width: 100%; padding: 18px 22px; display: flex; align-items: center; gap: 14px;
+      background: transparent; border: none; cursor: pointer; text-align: left;
+      transition: background 0.3s ease;
+    }
+    .sort-icon { font-size: 28px; line-height: 1; }
+    .sort-title-wrap { flex: 1; }
+    .sort-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 17px; color: #0F172A;
+    }
+    .sort-title-en {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: #94A3B8; margin-top: 2px;
+    }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .arrow {
+      font-size: 20px; color: #94A3B8; transition: transform 0.3s ease;
+    }
+    .sort-card.open .arrow { transform: rotate(180deg); }
+
+    .sort-card-body { padding: 0 22px 22px; display: none; }
+    .sort-card.open .sort-card-body { display: block; }
+    .sort-idea {
+      margin: 0 0 16px; font-size: 14.5px; line-height: 1.65; color: #334155;
+      font-style: italic; padding-left: 14px;
+    }
+    .sort-details { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #94A3B8; margin-bottom: 8px;
+    }
+    .steps-list {
+      margin: 0; padding-left: 18px; font-size: 13.5px;
+      line-height: 1.7; color: #475569;
+    }
+    .steps-list li { margin-bottom: 3px; }
+    .complexity-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+    .complexity-table td { padding: 4px 0; }
+    .complexity-table td:first-child { color: #64748B; font-weight: 500; padding-right: 8px; }
+    .complexity-table .val {
+      font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #0F172A;
+    }
+
+    .example-box {
+      background: #F8FAFC; border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 14px; border: 1px solid #E2E8F0;
+    }
+    .example-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+    }
+    .step-buttons { display: flex; gap: 6px; }
+    .step-btn {
+      width: 28px; height: 28px; border-radius: 8px; border: 1.5px solid #E2E8F0;
+      background: #fff; cursor: pointer; font-size: 14px; color: #475569;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-btn:disabled { background: #F1F5F9; color: #CBD5E1; cursor: default; }
+    .array-vis { display: flex; gap: 4px; flex-wrap: wrap; }
+    .array-cell {
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      border-radius: 8px; font-weight: 800; font-size: 15px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: #F1F5F9; color: #334155; border: 1.5px solid #E2E8F0;
+      transition: all 0.3s ease;
+    }
+    .array-cell.hl { color: #fff; }
+    .example-note { margin-top: 8px; font-size: 13px; color: #64748B; font-style: italic; }
+
+    .exam-tip {
+      border-radius: 10px; padding: 12px 14px; display: flex; gap: 10px;
+      align-items: flex-start;
+    }
+    .exam-tip-icon { font-size: 18px; }
+    .exam-tip-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; margin-bottom: 3px;
+    }
+    .exam-tip-text { font-size: 13px; line-height: 1.6; color: #334155; }
+
+    .comparison-section { max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    .comparison-toggle {
+      width: 100%; padding: 14px; border-radius: 14px; border: 2px solid #E2E8F0;
+      background: #fff; color: #0F172A; font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 15px; cursor: pointer;
+      transition: all 0.3s ease; letter-spacing: 0.02em;
+    }
+    .comparison-toggle.active { background: #0F172A; color: #F8FAFC; }
+    .comparison-table-wrap {
+      margin-top: 12px; background: #fff; border-radius: 14px; overflow: hidden;
+      border: 1.5px solid #E2E8F0; box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+      display: none;
+    }
+    .comparison-table-wrap.visible { display: block; }
+    .comparison-table-wrap table {
+      width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap;
+    }
+    .comparison-table-wrap thead tr {
+      background: #F8FAFC; border-bottom: 2px solid #E2E8F0;
+    }
+    .comparison-table-wrap th {
+      padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.08em; color: #64748B;
+    }
+    .comparison-table-wrap td {
+      padding: 10px 12px; font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; color: #334155;
+    }
+    .comparison-table-wrap td:first-child {
+      font-family: 'Nunito Sans', sans-serif; font-weight: 700;
+    }
+    .comparison-table-wrap tbody tr { border-bottom: 1px solid #F1F5F9; }
+    .comparison-table-wrap tbody tr:last-child { border-bottom: none; }
+
+    .cheatsheet { max-width: 720px; margin: 0 auto 32px; padding: 0 16px; }
+    .cheatsheet-box {
+      background: linear-gradient(135deg, #FEF9C3, #FEF3C7);
+      border-radius: 14px; padding: 18px 20px; border: 1.5px solid #F59E0B33;
+    }
+    .cheatsheet-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 15px; color: #92400E; margin-bottom: 10px;
+    }
+    .cheatsheet-text { font-size: 13.5px; line-height: 1.75; color: #78350F; }
+    .footer { text-align: center; padding: 16px; font-size: 12px; color: #94A3B8; }
+
+    @media (max-width: 500px) {
+      .sort-details { grid-template-columns: 1fr; }
+      .badges { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-inner">
+      <div class="header-badge">INF.03 — EGZAMIN ZAWODOWY</div>
+      <h1>Metody sortowania</h1>
+      <p>Kompletne kompendium algorytmów sortowania — definicje, złożoności, przykłady i wskazówki egzaminacyjne</p>
+    </div>
+  </div>
+
+  <div class="concepts-bar">
+    <div class="concepts-grid">
+      <div class="concept">
+        <div class="concept-emoji">⚖️</div>
+        <div class="concept-label">Stabilność</div>
+        <div class="concept-desc">Czy elementy o równych kluczach zachowują kolejność</div>
+      </div>
+      <div class="concept">
+        <div class="concept-emoji">📦</div>
+        <div class="concept-label">In-place</div>
+        <div class="concept-desc">Czy sortuje bez dodatkowej tablicy (pamięć O(1))</div>
+      </div>
+      <div class="concept">
+        <div class="concept-emoji">⏱️</div>
+        <div class="concept-label">Złożoność</div>
+        <div class="concept-desc">Ile operacji potrzeba — O(n), O(n²), O(n log n)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cards-container" id="cards"></div>
+
+  <div class="comparison-section">
+    <button class="comparison-toggle" id="compToggle" onclick="toggleComparison()">▸ Pokaż tabelę porównawczą</button>
+    <div class="comparison-table-wrap" id="compTable">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Algorytm</th><th>Best</th><th>Avg</th><th>Worst</th><th>Pamięć</th><th>Stab.</th></tr></thead>
+          <tbody id="compBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="cheatsheet">
+    <div class="cheatsheet-box">
+      <div class="cheatsheet-title">💡 Szybka ściąga do zapamiętania</div>
+      <div class="cheatsheet-text">
+        <strong>Proste (O(n²)):</strong> bąbelkowe, przez wybieranie, przez wstawianie — dobre dla małych zbiorów.<br>
+        <strong>Szybkie (O(n log n)):</strong> Quick Sort (najszybszy w praktyce), Merge Sort (gwarancja O(n log n)).<br>
+        <strong>Stabilne:</strong> bąbelkowe, przez wstawianie, przez scalanie — pamiętaj, Quick Sort i Selection Sort NIE SĄ stabilne!<br>
+        <strong>Pamięć:</strong> Merge Sort jako jedyny wymaga O(n) dodatkowej pamięci — reszta jest in-place.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Materiał dydaktyczny • Technikum informatyczne • Kwalifikacja INF.03</div>
+
+  <script>
+    var SORTS = [
+      {
+        id:"bubble", name:"Sortowanie bąbelkowe", nameEn:"Bubble Sort", icon:"\uD83E\uDEE7",
+        color:"#E8443A", colorLight:"#FEE8E7",
+        idea:"Porównujemy sąsiednie elementy i zamieniamy je, jeśli są w złej kolejności. Powtarzamy przejścia aż do posortowania.",
+        steps:["Przejdź przez tablicę od lewej do prawej","Porównaj element [i] z [i+1] — zamień jeśli [i] > [i+1]","Po jednym przejściu największy element \u201Ewypływa\u201D na koniec","Powtarzaj, aż nie zajdzie żadna zamiana"],
+        bestCase:"O(n)", avgCase:"O(n\u00B2)", worstCase:"O(n\u00B2)", memory:"O(1)",
+        stable:true, inPlace:true,
+        examTip:"Najczęściej pytany na egzaminie! Pamiętaj — po k przejściach, k ostatnich elementów jest na swoim miejscu.",
+        example:{ before:[5,3,8,1,2], passes:[
+          {arr:[3,5,1,2,8], note:"8 wypłynęło na koniec"},
+          {arr:[3,1,2,5,8], note:"5 na swoim miejscu"},
+          {arr:[1,2,3,5,8], note:"Posortowane!"}
+        ]}
+      },
+      {
+        id:"selection", name:"Sortowanie przez wybieranie", nameEn:"Selection Sort", icon:"\uD83C\uDFAF",
+        color:"#2563EB", colorLight:"#DBEAFE",
+        idea:"Znajdź najmniejszy element w nieposortowanej części i zamień go z pierwszym nieposortowanym.",
+        steps:["Znajdź minimum w nieposortowanej części tablicy","Zamień je z pierwszym elementem nieposortowanej części","Przesuń granicę posortowanej części o 1 w prawo","Powtarzaj aż cała tablica będzie posortowana"],
+        bestCase:"O(n\u00B2)", avgCase:"O(n\u00B2)", worstCase:"O(n\u00B2)", memory:"O(1)",
+        stable:false, inPlace:true,
+        examTip:"Zawsze wykonuje dokładnie n(n-1)/2 porównań, niezależnie od danych wejściowych. Złożoność zawsze O(n\u00B2).",
+        example:{ before:[5,3,8,1,2], passes:[
+          {arr:[1,3,8,5,2], note:"Min=1, zamiana z 5"},
+          {arr:[1,2,8,5,3], note:"Min=2, zamiana z 3"},
+          {arr:[1,2,3,5,8], note:"Min=3, zamiana z 8"}
+        ]}
+      },
+      {
+        id:"insertion", name:"Sortowanie przez wstawianie", nameEn:"Insertion Sort", icon:"\uD83C\uDCCF",
+        color:"#16A34A", colorLight:"#DCFCE7",
+        idea:"Bierzemy kolejny element i wstawiamy go we właściwe miejsce w już posortowanej części — jak układanie kart w ręce.",
+        steps:["Weź kolejny element z nieposortowanej części","Porównuj go z elementami posortowanej części (od prawej)","Przesuwaj większe elementy w prawo","Wstaw element na znalezione miejsce"],
+        bestCase:"O(n)", avgCase:"O(n\u00B2)", worstCase:"O(n\u00B2)", memory:"O(1)",
+        stable:true, inPlace:true,
+        examTip:"Najlepszy dla prawie posortowanych danych! O(n) w najlepszym przypadku. Analogia z kartami w ręce pojawia się na egzaminie.",
+        example:{ before:[5,3,8,1,2], passes:[
+          {arr:[3,5,8,1,2], note:"3 wstawione przed 5"},
+          {arr:[3,5,8,1,2], note:"8 zostaje na miejscu"},
+          {arr:[1,3,5,8,2], note:"1 wstawione na początek"},
+          {arr:[1,2,3,5,8], note:"2 wstawione za 1"}
+        ]}
+      },
+      {
+        id:"quick", name:"Sortowanie szybkie", nameEn:"Quick Sort", icon:"\u26A1",
+        color:"#D97706", colorLight:"#FEF3C7",
+        idea:"Wybierz element zwany pivotem. Podziel tablicę na elementy mniejsze i większe od pivota. Rekurencyjnie posortuj obie części.",
+        steps:["Wybierz pivot (np. ostatni element)","Podziel: mniejsze od pivota \u2192 lewa, większe \u2192 prawa","Pivot trafia na swoje ostateczne miejsce","Rekurencyjnie sortuj lewą i prawą podtablicę"],
+        bestCase:"O(n log n)", avgCase:"O(n log n)", worstCase:"O(n\u00B2)", memory:"O(log n)",
+        stable:false, inPlace:true,
+        examTip:"Najszybszy w praktyce! Działa na zasadzie \u201Edziel i zwyciężaj\u201D. Najgorszy przypadek O(n\u00B2) — gdy pivot to zawsze min/max.",
+        example:{ before:[5,3,8,1,2], passes:[
+          {arr:[1,2,3,8,5], note:"Pivot=2 \u2192 [1] [2] [5,3,8]"},
+          {arr:[1,2,3,5,8], note:"Pivot=5 \u2192 [3] [5] [8]"}
+        ]}
+      },
+      {
+        id:"merge", name:"Sortowanie przez scalanie", nameEn:"Merge Sort", icon:"\uD83D\uDD00",
+        color:"#9333EA", colorLight:"#F3E8FF",
+        idea:"Dziel tablicę na pół aż do elementów pojedynczych, potem scalaj posortowane części w jedną posortowaną całość.",
+        steps:["Podziel tablicę na dwie równe połowy","Rekurencyjnie posortuj każdą połowę","Scal (merge) dwie posortowane połowy w jedną","Scalanie: porównuj pierwsze elementy obu połówek"],
+        bestCase:"O(n log n)", avgCase:"O(n log n)", worstCase:"O(n log n)", memory:"O(n)",
+        stable:true, inPlace:false,
+        examTip:"Gwarantowane O(n log n) w każdym przypadku! Wymaga dodatkowej pamięci O(n). Stabilne sortowanie — zachowuje kolejność równych elementów.",
+        example:{ before:[5,3,8,1,2], passes:[
+          {arr:[5,3,8,1,2], note:"Dziel: [5,3] [8] [1,2]"},
+          {arr:[3,5,1,2,8], note:"Sortuj podtablice"},
+          {arr:[1,2,3,5,8], note:"Scal wszystko"}
+        ]}
+      }
+    ];
+
+    var cardSteps = {};
+    var openCard = "bubble";
+
+    function renderCards() {
+      var container = document.getElementById("cards");
+      var html = "";
+      for (var si = 0; si < SORTS.length; si++) {
+        var s = SORTS[si];
+        if (!(s.id in cardSteps)) cardSteps[s.id] = 0;
+        var isOpen = openCard === s.id;
+        var step = cardSteps[s.id];
+        var maxStep = s.example.passes.length;
+        var currentArr = step === 0 ? s.example.before : s.example.passes[step-1].arr;
+        var isLast = step === maxStep;
+        var note = step === 0 ? "Tablica wejściowa — kliknij \u25B6" : s.example.passes[step-1].note;
+
+        html += '<div class="sort-card' + (isOpen?' open':'') + '" style="' + (isOpen?'border-color:'+s.color+'44;box-shadow:0 8px 32px '+s.color+'15':'') + '">';
+        html += '<button class="sort-card-header" onclick="toggle(\''+s.id+'\')" style="'+(isOpen?'background:'+s.colorLight:'')+'">';
+        html += '<span class="sort-icon">'+s.icon+'</span>';
+        html += '<div class="sort-title-wrap"><div class="sort-title">'+s.name+'</div><div class="sort-title-en">'+s.nameEn+'</div></div>';
+        html += '<div class="badges">';
+        html += '<span class="badge" style="color:'+s.color+';background:'+s.colorLight+';border:1.5px solid '+s.color+'22">avg '+s.avgCase+'</span>';
+        if (s.stable) html += '<span class="badge" style="color:#16A34A;background:#DCFCE7;border:1.5px solid #16A34A22">stabilne</span>';
+        html += '</div>';
+        html += '<span class="arrow">\u25BE</span>';
+        html += '</button>';
+
+        html += '<div class="sort-card-body">';
+        html += '<p class="sort-idea" style="border-left:3px solid '+s.color+'">'+s.idea+'</p>';
+        html += '<div class="sort-details"><div>';
+        html += '<div class="section-label">Kroki algorytmu</div><ol class="steps-list">';
+        for (var j=0;j<s.steps.length;j++) html += '<li>'+s.steps[j]+'</li>';
+        html += '</ol></div><div>';
+        html += '<div class="section-label">Złożoność</div><table class="complexity-table">';
+        var rows = [["Najlepszy",s.bestCase],["Średni",s.avgCase],["Najgorszy",s.worstCase],["Pamięć",s.memory]];
+        for (var r=0;r<rows.length;r++) html += '<tr><td>'+rows[r][0]+'</td><td class="val">'+rows[r][1]+'</td></tr>';
+        html += '<tr><td>Stabilne</td><td style="font-weight:700">'+(s.stable?'\u2705 Tak':'\u274C Nie')+'</td></tr>';
+        html += '<tr><td>In-place</td><td style="font-weight:700">'+(s.inPlace?'\u2705 Tak':'\u274C Nie')+'</td></tr>';
+        html += '</table></div></div>';
+
+        html += '<div class="example-box"><div class="example-header">';
+        html += '<div class="section-label" style="margin:0">Przykład krok po kroku</div>';
+        html += '<div class="step-buttons">';
+        html += '<button class="step-btn" onclick="event.stopPropagation();changeStep(\''+s.id+'\',-1)"'+(step===0?' disabled':'')+'>&#9664;</button>';
+        html += '<button class="step-btn" onclick="event.stopPropagation();changeStep(\''+s.id+'\',1)"'+(isLast?' disabled':'')+'>&#9654;</button>';
+        html += '</div></div>';
+        html += '<div class="array-vis">';
+        for (var c=0;c<currentArr.length;c++) {
+          var cellStyle = isLast ? 'background:'+s.color+';border-color:'+s.color+';color:#fff' : '';
+          html += '<div class="array-cell" style="'+cellStyle+'">'+currentArr[c]+'</div>';
+        }
+        html += '</div>';
+        html += '<div class="example-note">'+note+'</div></div>';
+
+        html += '<div class="exam-tip" style="background:linear-gradient(135deg,'+s.color+'08,'+s.color+'12);border:1.5px solid '+s.color+'22">';
+        html += '<span class="exam-tip-icon">\uD83D\uDCDD</span><div>';
+        html += '<div class="exam-tip-label" style="color:'+s.color+'">Wskazówka egzaminacyjna</div>';
+        html += '<div class="exam-tip-text">'+s.examTip+'</div>';
+        html += '</div></div>';
+
+        html += '</div></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function toggle(id) {
+      openCard = openCard === id ? null : id;
+      renderCards();
+    }
+
+    function changeStep(id, delta) {
+      var s = null;
+      for (var i=0;i<SORTS.length;i++) { if(SORTS[i].id===id){s=SORTS[i];break;} }
+      var max = s.example.passes.length;
+      var cur = cardSteps[id] || 0;
+      cardSteps[id] = Math.max(0, Math.min(max, cur + delta));
+      renderCards();
+    }
+
+    function toggleComparison() {
+      var table = document.getElementById("compTable");
+      var btn = document.getElementById("compToggle");
+      var isVis = table.classList.contains("visible");
+      if (isVis) {
+        table.classList.remove("visible");
+        btn.classList.remove("active");
+        btn.textContent = "\u25B8 Pokaż tabelę porównawczą";
+      } else {
+        table.classList.add("visible");
+        btn.classList.add("active");
+        btn.textContent = "\u25BE Ukryj tabelę porównawczą";
+      }
+    }
+
+    function renderComparison() {
+      var html = "";
+      for (var i=0;i<SORTS.length;i++) {
+        var s = SORTS[i];
+        html += '<tr>';
+        html += '<td style="color:'+s.color+';font-weight:700">'+s.icon+' '+s.name+'</td>';
+        html += '<td>'+s.bestCase+'</td><td>'+s.avgCase+'</td><td>'+s.worstCase+'</td>';
+        html += '<td>'+s.memory+'</td><td>'+(s.stable?'\u2705':'\u274C')+'</td>';
+        html += '</tr>';
+      }
+      document.getElementById("compBody").innerHTML = html;
+    }
+
+    renderCards();
+    renderComparison();
+  </script>
+</body>
+</html>
