@@ -292,8 +292,9 @@
   <span class="hi-a">});</span>
 <span class="hi-a">});</span>
 
-<span class="cm">// ⚠ Dla 4 zdjęć → 4 listenery
-// ⚠ Dla 100 zdjęć → 100 listenerów</span></pre>
+<span class="cm">// forEach wykona się 4 razy →
+// przeglądarka zapamiętuje 4 osobne listenery
+// (po 1 przypiętym do każdego elementu DOM)</span></pre>
     </div>
   </div>
 
@@ -333,8 +334,9 @@
   <span class="hi-b">}</span>
 <span class="hi-b">});</span>
 
-<span class="cm">// ✓ Dla 4 zdjęć → 1 listener
-// ✓ Dla 100 zdjęć → nadal 1 listener</span></pre>
+<span class="cm">// brak pętli → addEventListener wywołany 1 raz →
+// przeglądarka zapamiętuje 1 listener na rodzicu
+// (niezależnie od liczby miniaturek)</span></pre>
     </div>
   </div>
 
