@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL – Ściąga na egzamin INF.03</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --green:    #3fb950;
+    --blue:     #58a6ff;
+    --orange:   #d29922;
+    --pink:     #f778ba;
+    --purple:   #bc8cff;
+    --teal:     #39c5cf;
+    --red:      #f85149;
+    --accent:   #1f6feb;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 16px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  .page-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--blue);
+  }
+  .page-header .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    break-inside: avoid;
+  }
+  .card.span2 { grid-column: span 2; }
+  .card.span3 { grid-column: span 3; }
+
+  .card-title {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ct-green  { color: var(--green); border-color: var(--green); }
+  .ct-blue   { color: var(--blue);  border-color: var(--blue); }
+  .ct-orange { color: var(--orange);border-color: var(--orange); }
+  .ct-pink   { color: var(--pink);  border-color: var(--pink); }
+  .ct-purple { color: var(--purple);border-color: var(--purple); }
+  .ct-teal   { color: var(--teal);  border-color: var(--teal); }
+  .ct-red    { color: var(--red);   border-color: var(--red); }
+
+  code, .kw, .fn, .val, .cm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+  }
+  .kw  { color: var(--pink); font-weight: 600; }
+  .fn  { color: var(--teal); }
+  .val { color: var(--orange); }
+  .cm  { color: var(--muted); font-style: italic; }
+  .hl  { color: var(--green); font-weight: 600; }
+
+  .block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 6px 10px;
+    margin: 5px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  .row-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+  }
+  .row-table th {
+    color: var(--muted);
+    font-weight: 600;
+    text-align: left;
+    padding: 3px 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .row-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #21262d;
+    vertical-align: top;
+  }
+  .row-table tr:last-child td { border-bottom: none; }
+  .row-table td:first-child { font-family: 'JetBrains Mono', monospace; }
+
+  .pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    padding: 1px 7px;
+    border-radius: 12px;
+    margin: 2px 2px 2px 0;
+    border: 1px solid;
+  }
+  .pill-green  { color: var(--green);  border-color: var(--green);  background: #12261e; }
+  .pill-blue   { color: var(--blue);   border-color: var(--blue);   background: #0c1d32; }
+  .pill-orange { color: var(--orange); border-color: var(--orange); background: #261c0c; }
+  .pill-pink   { color: var(--pink);   border-color: var(--pink);   background: #250c1a; }
+  .pill-purple { color: var(--purple); border-color: var(--purple); background: #1c1030; }
+  .pill-teal   { color: var(--teal);   border-color: var(--teal);   background: #0b2025; }
+  .pill-red    { color: var(--red);    border-color: var(--red);    background: #250a0a; }
+
+  .desc { color: var(--muted); font-size: 10px; margin-top: 2px; }
+  .section-gap { margin-top: 10px; }
+
+  .join-diagram {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .join-box {
+    flex: 1;
+    min-width: 100px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  .join-box .jname { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: var(--blue); font-weight: 600; }
+  .join-box .jdesc { font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .circles { display: flex; justify-content: center; margin: 4px 0; position: relative; height: 22px; }
+  .c1, .c2 { width: 22px; height: 22px; border-radius: 50%; border: 2px solid; position: absolute; top: 0; }
+  .c1 { left: 4px; }
+  .c2 { left: 14px; }
+  .inner-fill  { border-color: var(--blue); }
+  .inner-left  { border-color: var(--blue); }
+  .inner-right { border-color: var(--blue); }
+  .hl-left  { background: rgba(88,166,255,0.35); }
+  .hl-right { background: rgba(88,166,255,0.35); }
+  .hl-both  { background: rgba(88,166,255,0.35); }
+
+  .footer {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 8mm; font-size: 9pt; }
+    :root {
+      --bg: #f5f5f5; --surface: #ffffff; --border: #ddd; --text: #111;
+      --muted: #666; --green: #1a7f37; --blue: #0969da; --orange: #9a6700;
+      --pink: #b35f97; --purple: #6e40c9; --teal: #0e7490; --red: #cf222e;
+      --accent: #0969da;
+    }
+    .card { break-inside: avoid; }
+    .block { white-space: pre-wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>SQL — Ściąga Egzaminacyjna</h1>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span class="badge">INF.03</span>
+    <span class="badge" style="background:#1a7f37;">Technikum Informatyczne</span>
+  </div>
+</div>
+
+<!-- ROW 1: DDL + DML + Typy danych -->
+<div class="grid" style="margin-bottom:10px;">
+
+  <!-- DDL -->
+  <div class="card">
+    <div class="card-title ct-blue">DDL — Definiowanie struktury bazy</div>
+
+    <div class="block"><span class="cm">-- Tworzenie tabeli</span>
+<span class="kw">CREATE TABLE</span> uczniowie (
+  id        <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  imie      <span class="fn">VARCHAR</span>(<span class="val">50</span>) <span class="kw">NOT NULL</span>,
+  nazwisko  <span class="fn">VARCHAR</span>(<span class="val">80</span>) <span class="kw">NOT NULL</span>,
+  data_ur   <span class="fn">DATE</span>,
+  klasa_id  <span class="fn">INT</span>,
+  <span class="kw">FOREIGN KEY</span> (klasa_id) <span class="kw">REFERENCES</span> klasy(id)
+);</div>
+
+    <div class="block"><span class="cm">-- Modyfikacja tabeli</span>
+<span class="kw">ALTER TABLE</span> uczniowie
+  <span class="kw">ADD COLUMN</span> email <span class="fn">VARCHAR</span>(<span class="val">100</span>);
+
+<span class="kw">ALTER TABLE</span> uczniowie
+  <span class="kw">MODIFY COLUMN</span> imie <span class="fn">VARCHAR</span>(<span class="val">80</span>);
+
+<span class="kw">ALTER TABLE</span> uczniowie
+  <span class="kw">DROP COLUMN</span> email;
+
+<span class="kw">ALTER TABLE</span> uczniowie
+  <span class="kw">RENAME TO</span> studenci;</div>
+
+    <div class="block"><span class="cm">-- Usuwanie</span>
+<span class="kw">DROP TABLE</span> uczniowie;      <span class="cm">-- usuwa tabelę</span>
+<span class="kw">DROP DATABASE</span> szkola;     <span class="cm">-- usuwa bazę</span>
+<span class="kw">TRUNCATE TABLE</span> logi;      <span class="cm">-- czyści dane</span></div>
+
+    <div class="block"><span class="cm">-- Tworzenie bazy i indeksu</span>
+<span class="kw">CREATE DATABASE</span> szkola;
+<span class="kw">CREATE INDEX</span> idx_nazwisko
+  <span class="kw">ON</span> uczniowie (nazwisko);</div>
+  </div>
+
+  <!-- DML -->
+  <div class="card">
+    <div class="card-title ct-green">DML — Manipulowanie danymi</div>
+
+    <div class="block"><span class="cm">-- Wstawianie danych</span>
+<span class="kw">INSERT INTO</span> uczniowie (imie, nazwisko, klasa_id)
+<span class="kw">VALUES</span> (<span class="val">'Anna'</span>, <span class="val">'Kowalska'</span>, <span class="val">3</span>);
+
+<span class="cm">-- Wiele rekordów naraz</span>
+<span class="kw">INSERT INTO</span> uczniowie (imie, nazwisko)
+<span class="kw">VALUES</span>
+  (<span class="val">'Jan'</span>, <span class="val">'Nowak'</span>),
+  (<span class="val">'Ewa'</span>, <span class="val">'Wiśniewska'</span>);</div>
+
+    <div class="block"><span class="cm">-- Aktualizacja danych</span>
+<span class="kw">UPDATE</span> uczniowie
+<span class="kw">SET</span>    klasa_id = <span class="val">4</span>, email = <span class="val">'a@szk.pl'</span>
+<span class="kw">WHERE</span>  id = <span class="val">7</span>;
+
+<span class="cm">-- ⚠ Bez WHERE – zmienia WSZYSTKIE wiersze!</span></div>
+
+    <div class="block"><span class="cm">-- Usuwanie danych</span>
+<span class="kw">DELETE FROM</span> uczniowie
+<span class="kw">WHERE</span> id = <span class="val">7</span>;
+
+<span class="cm">-- ⚠ Bez WHERE – usuwa WSZYSTKIE wiersze!</span></div>
+
+    <div class="block"><span class="cm">-- Pełne zapytanie SELECT</span>
+<span class="kw">SELECT</span>   kolumna1, kolumna2
+<span class="kw">FROM</span>     tabela
+<span class="kw">WHERE</span>    warunek
+<span class="kw">GROUP BY</span> kolumna
+<span class="kw">HAVING</span>   warunek_agregatu
+<span class="kw">ORDER BY</span> kolumna <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>    <span class="val">10</span>;</div>
+
+    <div class="block"><span class="cm">-- Kolejność wykonania (≠ pisania!)</span>
+<span class="cm">FROM → WHERE → GROUP BY → HAVING</span>
+<span class="cm">     → SELECT → ORDER BY → LIMIT</span></div>
+  </div>
+
+  <!-- Typy danych -->
+  <div class="card">
+    <div class="card-title ct-orange">Typy danych MySQL</div>
+    <table class="row-table">
+      <thead><tr><th>Typ</th><th>Opis</th></tr></thead>
+      <tbody>
+        <tr><td><span class="fn">INT</span></td><td>Liczba całkowita (–2 mld … 2 mld)</td></tr>
+        <tr><td><span class="fn">TINYINT</span></td><td>Mała liczba całkowita (0…255)</td></tr>
+        <tr><td><span class="fn">BIGINT</span></td><td>Bardzo duża liczba całkowita</td></tr>
+        <tr><td><span class="fn">FLOAT</span></td><td>Liczba zmiennoprzecinkowa (przybliż.)</td></tr>
+        <tr><td><span class="fn">DECIMAL(p,s)</span></td><td>Dokładna liczba dziesiętna – finanse!</td></tr>
+        <tr><td><span class="fn">CHAR(n)</span></td><td>Tekst stałej długości (max 255)</td></tr>
+        <tr><td><span class="fn">VARCHAR(n)</span></td><td>Tekst zmiennej długości (max 65 535)</td></tr>
+        <tr><td><span class="fn">TEXT</span></td><td>Długi tekst (max 65 535 znaków)</td></tr>
+        <tr><td><span class="fn">DATE</span></td><td>Data: YYYY-MM-DD</td></tr>
+        <tr><td><span class="fn">TIME</span></td><td>Czas: HH:MM:SS</td></tr>
+        <tr><td><span class="fn">DATETIME</span></td><td>Data i czas razem</td></tr>
+        <tr><td><span class="fn">TIMESTAMP</span></td><td>Znacznik czasu (strefy czasowe)</td></tr>
+        <tr><td><span class="fn">BOOLEAN</span></td><td>TRUE / FALSE (alias: TINYINT 1)</td></tr>
+        <tr><td><span class="fn">ENUM('a','b')</span></td><td>Jeden ze zdefiniowanych wariantów</td></tr>
+        <tr><td><span class="fn">BLOB</span></td><td>Dane binarne (pliki, obrazy)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-gap"></div>
+    <div class="card-title ct-orange" style="margin-bottom:5px;">Ograniczenia (Constraints)</div>
+    <table class="row-table">
+      <thead><tr><th>Constraint</th><th>Znaczenie</th></tr></thead>
+      <tbody>
+        <tr><td><span class="kw">PRIMARY KEY</span></td><td>Klucz główny – unikalny, nie NULL</td></tr>
+        <tr><td><span class="kw">FOREIGN KEY</span></td><td>Klucz obcy – relacja z inną tabelą</td></tr>
+        <tr><td><span class="kw">NOT NULL</span></td><td>Pole musi mieć wartość</td></tr>
+        <tr><td><span class="kw">UNIQUE</span></td><td>Wartości unikalne w kolumnie</td></tr>
+        <tr><td><span class="kw">DEFAULT x</span></td><td>Domyślna wartość pola</td></tr>
+        <tr><td><span class="kw">AUTO_INCREMENT</span></td><td>Automatyczna numeracja (MySQL)</td></tr>
+        <tr><td><span class="kw">CHECK (warunek)</span></td><td>Sprawdza warunek przy wstawieniu</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ROW 2: SELECT zaawansowany + Funkcje + Operatory -->
+<div class="grid" style="margin-bottom:10px;">
+
+  <!-- SELECT zaawansowany -->
+  <div class="card">
+    <div class="card-title ct-teal">SELECT — Klauzule i filtrowanie</div>
+
+    <div class="block"><span class="cm">-- Podstawowe</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> uczniowie;
+<span class="kw">SELECT DISTINCT</span> klasa_id <span class="kw">FROM</span> uczniowie;
+<span class="kw">SELECT</span> imie <span class="kw">AS</span> imię_ucznia <span class="kw">FROM</span> uczniowie;</div>
+
+    <div class="block"><span class="cm">-- WHERE z operatorami</span>
+<span class="kw">WHERE</span> wiek > <span class="val">18</span> <span class="kw">AND</span> klasa = <span class="val">'3IT'</span>
+<span class="kw">WHERE</span> wiek <span class="kw">BETWEEN</span> <span class="val">16</span> <span class="kw">AND</span> <span class="val">19</span>
+<span class="kw">WHERE</span> klasa <span class="kw">IN</span> (<span class="val">'2IT'</span>, <span class="val">'3IT'</span>, <span class="val">'4IT'</span>)
+<span class="kw">WHERE</span> email <span class="kw">IS NULL</span>
+<span class="kw">WHERE</span> email <span class="kw">IS NOT NULL</span>
+<span class="kw">WHERE</span> nazwisko <span class="kw">LIKE</span> <span class="val">'Ko%'</span>    <span class="cm">-- % = dowolny ciąg</span>
+<span class="kw">WHERE</span> nazwisko <span class="kw">LIKE</span> <span class="val">'_owak'</span>   <span class="cm">-- _ = 1 znak</span></div>
+
+    <div class="block"><span class="cm">-- GROUP BY + HAVING</span>
+<span class="kw">SELECT</span>   klasa_id, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> liczba
+<span class="kw">FROM</span>     uczniowie
+<span class="kw">GROUP BY</span> klasa_id
+<span class="kw">HAVING</span>   <span class="fn">COUNT</span>(*) > <span class="val">20</span>;
+<span class="cm">-- HAVING filtruje wyniki GROUP BY</span>
+<span class="cm">-- WHERE filtruje wiersze PRZED grupowaniem</span></div>
+
+    <div class="block"><span class="cm">-- ORDER BY + LIMIT</span>
+<span class="kw">ORDER BY</span> nazwisko <span class="kw">ASC</span>         <span class="cm">-- rosnąco (domyślne)</span>
+<span class="kw">ORDER BY</span> srednia <span class="kw">DESC</span>         <span class="cm">-- malejąco</span>
+<span class="kw">ORDER BY</span> nazwisko, imie        <span class="cm">-- wielopoziomowe</span>
+<span class="kw">LIMIT</span> <span class="val">5</span>                       <span class="cm">-- pierwsze 5 wyników</span>
+<span class="kw">LIMIT</span> <span class="val">10</span> <span class="kw">OFFSET</span> <span class="val">20</span>           <span class="cm">-- strona 3 (po 10)</span></div>
+  </div>
+
+  <!-- Funkcje agregujące -->
+  <div class="card">
+    <div class="card-title ct-purple">Funkcje agregujące i wbudowane</div>
+
+    <div class="card-title ct-purple" style="border:none;margin-bottom:4px;font-size:8px;">Agregujące (używane z GROUP BY lub bez)</div>
+    <div class="block"><span class="fn">COUNT</span>(*)           <span class="cm">-- liczba wszystkich wierszy</span>
+<span class="fn">COUNT</span>(kolumna)     <span class="cm">-- pomija NULL</span>
+<span class="fn">SUM</span>(kolumna)       <span class="cm">-- suma</span>
+<span class="fn">AVG</span>(kolumna)       <span class="cm">-- średnia arytmetyczna</span>
+<span class="fn">MIN</span>(kolumna)       <span class="cm">-- wartość minimalna</span>
+<span class="fn">MAX</span>(kolumna)       <span class="cm">-- wartość maksymalna</span></div>
+
+    <div class="card-title ct-teal" style="border:none;margin-bottom:4px;font-size:8px;margin-top:6px;">Tekstowe</div>
+    <div class="block"><span class="fn">CONCAT</span>(<span class="val">'a'</span>, <span class="val">'b'</span>)          <span class="cm">-- 'ab'</span>
+<span class="fn">LENGTH</span>(str)               <span class="cm">-- długość w bajtach</span>
+<span class="fn">UPPER</span>(str) / <span class="fn">LOWER</span>(str)  <span class="cm">-- zmiana wielkości</span>
+<span class="fn">TRIM</span>(str)                 <span class="cm">-- usuwa spacje z końców</span>
+<span class="fn">SUBSTRING</span>(str, <span class="val">2</span>, <span class="val">4</span>)     <span class="cm">-- wycina fragment</span>
+<span class="fn">REPLACE</span>(str, <span class="val">'a'</span>, <span class="val">'b'</span>)   <span class="cm">-- zamiana tekstu</span>
+<span class="fn">LEFT</span>(str, <span class="val">3</span>)              <span class="cm">-- 3 znaki od lewej</span></div>
+
+    <div class="card-title ct-orange" style="border:none;margin-bottom:4px;font-size:8px;margin-top:6px;">Daty i czas</div>
+    <div class="block"><span class="fn">NOW</span>()                     <span class="cm">-- bieżąca data i czas</span>
+<span class="fn">CURDATE</span>()                 <span class="cm">-- bieżąca data</span>
+<span class="fn">YEAR</span>(data) / <span class="fn">MONTH</span>(data)
+<span class="fn">DAY</span>(data)
+<span class="fn">DATEDIFF</span>(d1, d2)          <span class="cm">-- różnica w dniach</span>
+<span class="fn">DATE_FORMAT</span>(d, <span class="val">'%d.%m.%Y'</span>)</div>
+
+    <div class="card-title ct-green" style="border:none;margin-bottom:4px;font-size:8px;margin-top:6px;">Matematyczne i warunkowe</div>
+    <div class="block"><span class="fn">ROUND</span>(<span class="val">3.567</span>, <span class="val">2</span>)          <span class="cm">-- 3.57</span>
+<span class="fn">ABS</span>(<span class="val">-5</span>)                   <span class="cm">-- 5</span>
+<span class="fn">FLOOR</span>(<span class="val">3.9</span>)                <span class="cm">-- 3 (w dół)</span>
+<span class="fn">CEIL</span>(<span class="val">3.1</span>)                 <span class="cm">-- 4 (w górę)</span>
+<span class="fn">IFNULL</span>(kol, <span class="val">'brak'</span>)       <span class="cm">-- zastąp NULL</span>
+<span class="fn">COALESCE</span>(a, b, c)         <span class="cm">-- pierwsza nie-NULL</span>
+<span class="kw">CASE WHEN</span> wiek&gt;=18 <span class="kw">THEN</span> <span class="val">'dorosły'</span>
+     <span class="kw">ELSE</span> <span class="val">'nieletni'</span> <span class="kw">END</span></div>
+  </div>
+
+  <!-- Podzapytania -->
+  <div class="card">
+    <div class="card-title ct-pink">Podzapytania (Subqueries)</div>
+
+    <div class="block"><span class="cm">-- W WHERE</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> uczniowie
+<span class="kw">WHERE</span> klasa_id = (
+  <span class="kw">SELECT</span> id <span class="kw">FROM</span> klasy
+  <span class="kw">WHERE</span> nazwa = <span class="val">'3IT'</span>
+);</div>
+
+    <div class="block"><span class="cm">-- Z IN (wiele wyników)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> uczniowie
+<span class="kw">WHERE</span> klasa_id <span class="kw">IN</span> (
+  <span class="kw">SELECT</span> id <span class="kw">FROM</span> klasy
+  <span class="kw">WHERE</span> profil = <span class="val">'informatyczny'</span>
+);</div>
+
+    <div class="block"><span class="cm">-- W SELECT (skalarne)</span>
+<span class="kw">SELECT</span> imie,
+  (<span class="kw">SELECT</span> <span class="fn">AVG</span>(ocena) <span class="kw">FROM</span> oceny
+   <span class="kw">WHERE</span> uczen_id = u.id) <span class="kw">AS</span> srednia
+<span class="kw">FROM</span> uczniowie u;</div>
+
+    <div class="block"><span class="cm">-- EXISTS</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> uczniowie u
+<span class="kw">WHERE EXISTS</span> (
+  <span class="kw">SELECT</span> <span class="val">1</span> <span class="kw">FROM</span> oceny o
+  <span class="kw">WHERE</span> o.uczen_id = u.id
+    <span class="kw">AND</span> o.ocena = <span class="val">5</span>
+);</div>
+
+    <div class="block"><span class="cm">-- W FROM (tabela pochodna)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> klasa_id, <span class="fn">AVG</span>(ocena) avg_oc
+  <span class="kw">FROM</span>  oceny <span class="kw">GROUP BY</span> klasa_id
+) <span class="kw">AS</span> srednie
+<span class="kw">WHERE</span> avg_oc > <span class="val">4</span>;</div>
+  </div>
+</div>
+
+<!-- ROW 3: Joins + Transakcje + Widoki -->
+<div class="grid" style="margin-bottom:10px;">
+
+  <!-- JOINy -->
+  <div class="card span2">
+    <div class="card-title ct-teal">JOIN — Łączenie tabel</div>
+    <div class="join-diagram">
+      <div class="join-box">
+        <div class="jname">INNER JOIN</div>
+        <div class="circles">
+          <div class="c1 inner-left hl-both" style="background:rgba(88,166,255,0.5);"></div>
+          <div class="c2 inner-right" style="border-color:var(--blue);"></div>
+        </div>
+        <div class="jdesc">Tylko pasujące wiersze z obu tabel</div>
+      </div>
+      <div class="join-box">
+        <div class="jname">LEFT JOIN</div>
+        <div class="circles">
+          <div class="c1" style="border-color:var(--blue);background:rgba(88,166,255,0.5);"></div>
+          <div class="c2" style="border-color:var(--blue);"></div>
+        </div>
+        <div class="jdesc">Wszystko z lewej + pasujące z prawej (NULL gdy brak)</div>
+      </div>
+      <div class="join-box">
+        <div class="jname">RIGHT JOIN</div>
+        <div class="circles">
+          <div class="c1" style="border-color:var(--blue);"></div>
+          <div class="c2" style="border-color:var(--blue);background:rgba(88,166,255,0.5);"></div>
+        </div>
+        <div class="jdesc">Wszystko z prawej + pasujące z lewej (NULL gdy brak)</div>
+      </div>
+      <div class="join-box">
+        <div class="jname">CROSS JOIN</div>
+        <div class="circles">
+          <div class="c1" style="border-color:var(--orange);background:rgba(210,153,34,0.3);"></div>
+          <div class="c2" style="border-color:var(--orange);background:rgba(210,153,34,0.3);"></div>
+        </div>
+        <div class="jdesc">Każdy z każdym – iloczyn kartezjański</div>
+      </div>
+    </div>
+    <div class="block" style="margin-top:8px;"><span class="cm">-- INNER JOIN (najczęstszy)</span>
+<span class="kw">SELECT</span> u.imie, u.nazwisko, k.nazwa <span class="kw">AS</span> klasa
+<span class="kw">FROM</span>  uczniowie u
+<span class="kw">INNER JOIN</span> klasy k <span class="kw">ON</span> u.klasa_id = k.id;
+
+<span class="cm">-- LEFT JOIN – uczniowie bez przypisanej klasy też pojawią się</span>
+<span class="kw">SELECT</span> u.imie, k.nazwa
+<span class="kw">FROM</span>  uczniowie u
+<span class="kw">LEFT JOIN</span> klasy k <span class="kw">ON</span> u.klasa_id = k.id;
+
+<span class="cm">-- Łączenie trzech tabel</span>
+<span class="kw">SELECT</span> u.imie, p.tytul, o.ocena
+<span class="kw">FROM</span>   oceny o
+<span class="kw">JOIN</span>   uczniowie u <span class="kw">ON</span> o.uczen_id = u.id
+<span class="kw">JOIN</span>   przedmioty p <span class="kw">ON</span> o.przedmiot_id = p.id
+<span class="kw">WHERE</span>  o.ocena >= <span class="val">4</span>;</div>
+  </div>
+
+  <!-- Transakcje + Widoki -->
+  <div class="card">
+    <div class="card-title ct-red">Transakcje (TCL)</div>
+    <div class="block"><span class="kw">START TRANSACTION</span>;  <span class="cm">-- lub BEGIN</span>
+
+<span class="kw">UPDATE</span> konta <span class="kw">SET</span> saldo = saldo - <span class="val">500</span>
+<span class="kw">WHERE</span> id = <span class="val">1</span>;
+
+<span class="kw">UPDATE</span> konta <span class="kw">SET</span> saldo = saldo + <span class="val">500</span>
+<span class="kw">WHERE</span> id = <span class="val">2</span>;
+
+<span class="kw">COMMIT</span>;    <span class="cm">-- zatwierdź zmiany</span>
+<span class="cm">-- lub w razie błędu:</span>
+<span class="kw">ROLLBACK</span>;  <span class="cm">-- cofnij zmiany</span></div>
+
+    <p class="desc">Własności transakcji — <span style="color:var(--orange);font-weight:600;">ACID</span>:<br>
+    <b style="color:var(--text);">A</b>tomicity · <b style="color:var(--text);">C</b>onsistency · <b style="color:var(--text);">I</b>solation · <b style="color:var(--text);">D</b>urability</p>
+
+    <div class="card-title ct-green" style="margin-top:10px;">Widoki (Views)</div>
+    <div class="block"><span class="cm">-- Tworzenie widoku</span>
+<span class="kw">CREATE VIEW</span> v_uczniowie_it <span class="kw">AS</span>
+  <span class="kw">SELECT</span> u.imie, u.nazwisko, k.nazwa
+  <span class="kw">FROM</span>   uczniowie u
+  <span class="kw">JOIN</span>   klasy k <span class="kw">ON</span> u.klasa_id = k.id
+  <span class="kw">WHERE</span>  k.profil = <span class="val">'informatyczny'</span>;
+
+<span class="cm">-- Użycie widoku (jak tabela!)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> v_uczniowie_it;
+
+<span class="cm">-- Usunięcie widoku</span>
+<span class="kw">DROP VIEW</span> v_uczniowie_it;</div>
+
+    <div class="card-title ct-blue" style="margin-top:10px;">DCL — Uprawnienia</div>
+    <div class="block"><span class="kw">GRANT SELECT, INSERT ON</span> szkola.* <span class="kw">TO</span> <span class="val">'user'</span>@<span class="val">'localhost'</span>;
+<span class="kw">REVOKE INSERT ON</span> szkola.* <span class="kw">FROM</span> <span class="val">'user'</span>@<span class="val">'localhost'</span>;</div>
+  </div>
+</div>
+
+<!-- ROW 4: Operatory + Słowa kluczowe + Tipsy egzaminacyjne -->
+<div class="grid grid-4" style="margin-bottom:10px;grid-template-columns: 1fr 1fr 1fr 1fr;">
+
+  <div class="card">
+    <div class="card-title ct-orange">Operatory porównania</div>
+    <table class="row-table">
+      <tbody>
+        <tr><td><span class="kw">=</span></td><td>Równy</td></tr>
+        <tr><td><span class="kw">&lt;&gt;</span> lub <span class="kw">!=</span></td><td>Różny</td></tr>
+        <tr><td><span class="kw">&gt; &lt; &gt;= &lt;=</span></td><td>Porównanie</td></tr>
+        <tr><td><span class="kw">BETWEEN a AND b</span></td><td>Przedział (domknięty)</td></tr>
+        <tr><td><span class="kw">IN (lista)</span></td><td>W zbiorze</td></tr>
+        <tr><td><span class="kw">NOT IN</span></td><td>Nie w zbiorze</td></tr>
+        <tr><td><span class="kw">LIKE 'wzorzec'</span></td><td>Dopasowanie tekstu</td></tr>
+        <tr><td><span class="kw">IS NULL</span></td><td>Wartość pusta</td></tr>
+        <tr><td><span class="kw">IS NOT NULL</span></td><td>Wartość niepusta</td></tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:8px;">
+      <div class="card-title ct-orange" style="border:none;font-size:8px;margin-bottom:4px;">Operatory logiczne</div>
+      <span class="pill pill-pink">AND</span>
+      <span class="pill pill-pink">OR</span>
+      <span class="pill pill-pink">NOT</span>
+      <p class="desc" style="margin-top:4px;">Priorytet: <span class="kw">NOT</span> &gt; <span class="kw">AND</span> &gt; <span class="kw">OR</span></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title ct-blue">LIKE — wzorce tekstowe</div>
+    <table class="row-table">
+      <thead><tr><th>Wzorzec</th><th>Pasuje do</th></tr></thead>
+      <tbody>
+        <tr><td><span class="val">'Ko%'</span></td><td>Zaczyna się na „Ko"</td></tr>
+        <tr><td><span class="val">'%ski'</span></td><td>Kończy się na „ski"</td></tr>
+        <tr><td><span class="val">'%ow%'</span></td><td>Zawiera „ow" gdziekolwiek</td></tr>
+        <tr><td><span class="val">'_owak'</span></td><td>Dowolny 1. znak, potem „owak"</td></tr>
+        <tr><td><span class="val">'__ow%'</span></td><td>2 znaki, potem „ow", potem cokolwiek</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card-title ct-teal" style="margin-top:10px;">UNION — łączenie wyników</div>
+    <div class="block" style="font-size:9.5px;"><span class="kw">SELECT</span> imie <span class="kw">FROM</span> uczniowie
+<span class="kw">UNION</span>          <span class="cm">-- usuwa duplikaty</span>
+<span class="kw">SELECT</span> imie <span class="kw">FROM</span> absolwenci;
+
+<span class="kw">UNION ALL</span>      <span class="cm">-- zachowuje duplikaty</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title ct-green">Słownik kluczowych pojęć</div>
+    <table class="row-table">
+      <tbody>
+        <tr><td><span class="kw">DDL</span></td><td>Def. struktury (CREATE, ALTER, DROP)</td></tr>
+        <tr><td><span class="kw">DML</span></td><td>Manipulacja danymi (SELECT, INSERT, UPDATE, DELETE)</td></tr>
+        <tr><td><span class="kw">DCL</span></td><td>Uprawnienia (GRANT, REVOKE)</td></tr>
+        <tr><td><span class="kw">TCL</span></td><td>Transakcje (COMMIT, ROLLBACK)</td></tr>
+        <tr><td><span class="kw">PK</span></td><td>Klucz główny – unikalny identyfikator</td></tr>
+        <tr><td><span class="kw">FK</span></td><td>Klucz obcy – wiąże tabele</td></tr>
+        <tr><td><span class="kw">NULL</span></td><td>Brak wartości (≠ 0, ≠ '')</td></tr>
+        <tr><td><span class="kw">Alias (AS)</span></td><td>Tymczasowa nazwa kolumny/tabeli</td></tr>
+        <tr><td><span class="kw">Widok</span></td><td>Wirtualna tabela (zapisane SELECT)</td></tr>
+        <tr><td><span class="kw">Indeks</span></td><td>Przyspiesza wyszukiwanie</td></tr>
+        <tr><td><span class="kw">Normalizacja</span></td><td>Organizacja danych bez redundancji</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="border-color:var(--red);">
+    <div class="card-title ct-red">⚠ Pułapki egzaminacyjne</div>
+    <table class="row-table">
+      <tbody>
+        <tr>
+          <td colspan="2" style="color:var(--orange);padding-bottom:3px;font-weight:600;font-size:10px;">NULL – błędy porównania</td>
+        </tr>
+        <tr>
+          <td><span class="kw">WHERE x = NULL</span></td>
+          <td style="color:var(--red);">❌ Zawsze fałsz!</td>
+        </tr>
+        <tr>
+          <td><span class="kw">WHERE x IS NULL</span></td>
+          <td style="color:var(--green);">✓ Poprawnie</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="color:var(--orange);padding:6px 0 3px;font-weight:600;font-size:10px;">WHERE vs HAVING</td>
+        </tr>
+        <tr>
+          <td><span class="kw">WHERE</span></td>
+          <td>Filtruje wiersze PRZED grupowaniem, nie używa funkcji agg.</td>
+        </tr>
+        <tr>
+          <td><span class="kw">HAVING</span></td>
+          <td>Filtruje grupy PO GROUP BY, może używać COUNT, SUM...</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="color:var(--orange);padding:6px 0 3px;font-weight:600;font-size:10px;">DELETE vs TRUNCATE</td>
+        </tr>
+        <tr>
+          <td><span class="kw">DELETE</span></td>
+          <td>Można z WHERE, wolniejsze, loguje zmiany</td>
+        </tr>
+        <tr>
+          <td><span class="kw">TRUNCATE</span></td>
+          <td>Bez WHERE, szybsze, resetuje AUTO_INCREMENT</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="color:var(--orange);padding:6px 0 3px;font-weight:600;font-size:10px;">Kolejność klauzul SELECT</td>
+        </tr>
+        <tr>
+          <td colspan="2" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--teal);">SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY → LIMIT</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ROW 5: Kompletny przykład -->
+<div class="card span3" style="grid-column:span 3;border-color:var(--accent);">
+  <div class="card-title ct-blue">Kompleksowy przykład — schemat bazy szkoły</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div>
+      <div class="block"><span class="cm">-- Tworzenie schematu</span>
+<span class="kw">CREATE TABLE</span> klasy (
+  id     <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  nazwa  <span class="fn">VARCHAR</span>(<span class="val">10</span>) <span class="kw">NOT NULL UNIQUE</span>,
+  profil <span class="fn">VARCHAR</span>(<span class="val">50</span>)
+);
+
+<span class="kw">CREATE TABLE</span> uczniowie (
+  id       <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  imie     <span class="fn">VARCHAR</span>(<span class="val">50</span>) <span class="kw">NOT NULL</span>,
+  nazwisko <span class="fn">VARCHAR</span>(<span class="val">80</span>) <span class="kw">NOT NULL</span>,
+  klasa_id <span class="fn">INT</span>,
+  <span class="kw">FOREIGN KEY</span> (klasa_id) <span class="kw">REFERENCES</span> klasy(id)
+);
+
+<span class="kw">CREATE TABLE</span> oceny (
+  id           <span class="fn">INT</span> <span class="kw">PRIMARY KEY AUTO_INCREMENT</span>,
+  uczen_id     <span class="fn">INT</span> <span class="kw">NOT NULL</span>,
+  przedmiot    <span class="fn">VARCHAR</span>(<span class="val">60</span>),
+  ocena        <span class="fn">TINYINT</span> <span class="kw">CHECK</span> (ocena <span class="kw">BETWEEN</span> <span class="val">1</span> <span class="kw">AND</span> <span class="val">6</span>),
+  data_wystawienia <span class="fn">DATE</span> <span class="kw">DEFAULT</span> (<span class="fn">CURDATE</span>()),
+  <span class="kw">FOREIGN KEY</span> (uczen_id) <span class="kw">REFERENCES</span> uczniowie(id)
+);</div>
+    </div>
+    <div>
+      <div class="block"><span class="cm">-- Raport: średnia ocen każdego ucznia</span>
+<span class="kw">SELECT</span>
+  u.imie,
+  u.nazwisko,
+  k.nazwa <span class="kw">AS</span> klasa,
+  <span class="fn">COUNT</span>(o.id)           <span class="kw">AS</span> liczba_ocen,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(o.ocena), <span class="val">2</span>) <span class="kw">AS</span> srednia,
+  <span class="fn">MIN</span>(o.ocena)           <span class="kw">AS</span> najnizsza,
+  <span class="fn">MAX</span>(o.ocena)           <span class="kw">AS</span> najwyzsza
+<span class="kw">FROM</span>     uczniowie u
+<span class="kw">JOIN</span>     klasy k  <span class="kw">ON</span> u.klasa_id = k.id
+<span class="kw">LEFT JOIN</span> oceny o <span class="kw">ON</span> o.uczen_id = u.id
+<span class="kw">GROUP BY</span> u.id, u.imie, u.nazwisko, k.nazwa
+<span class="kw">HAVING</span>   <span class="fn">AVG</span>(o.ocena) >= <span class="val">4.0</span>
+<span class="kw">ORDER BY</span> srednia <span class="kw">DESC</span>
+<span class="kw">LIMIT</span>    <span class="val">10</span>;</div>
+
+      <div class="block" style="margin-top:6px;"><span class="cm">-- Widok: celujący uczniowie</span>
+<span class="kw">CREATE VIEW</span> v_celujacy <span class="kw">AS</span>
+<span class="kw">SELECT</span> u.imie, u.nazwisko, k.nazwa,
+       <span class="fn">ROUND</span>(<span class="fn">AVG</span>(o.ocena),<span class="val">2</span>) <span class="kw">AS</span> sr
+<span class="kw">FROM</span>  uczniowie u
+<span class="kw">JOIN</span>  klasy k <span class="kw">ON</span> u.klasa_id = k.id
+<span class="kw">JOIN</span>  oceny o <span class="kw">ON</span> o.uczen_id = u.id
+<span class="kw">GROUP BY</span> u.id, k.nazwa
+<span class="kw">HAVING</span> sr >= <span class="val">5</span>;
+
+<span class="cm">-- Aktualizacja z podzapytaniem</span>
+<span class="kw">UPDATE</span> uczniowie
+<span class="kw">SET</span>    klasa_id = (<span class="kw">SELECT</span> id <span class="kw">FROM</span> klasy <span class="kw">WHERE</span> nazwa=<span class="val">'4IT'</span>)
+<span class="kw">WHERE</span>  id <span class="kw">IN</span> (<span class="kw">SELECT</span> uczen_id <span class="kw">FROM</span> v_celujacy);</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>SQL Ściąga — Egzamin INF.03 | Technikum Informatyczne</span>
+  <span>DDL · DML · DCL · TCL · Funkcje · JOINy · Podzapytania · Widoki</span>
+  <span>Drukuj: Ctrl+P → Orientacja pozioma</span>
+</div>
+
+</body>
+</html>
