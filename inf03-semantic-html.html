@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantyczny HTML5 — ściągawka INF.03</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f4ef;
+    --surface:   #ffffff;
+    --border:    #dddbd3;
+    --text:      #1e1d1a;
+    --muted:     #6b6961;
+    --accent1:   #1a5fb4;   /* niebieski — kontenery */
+    --accent1bg: #e8f0fb;
+    --accent2:   #2a7c3f;   /* zielony — inline semantyczne */
+    --accent2bg: #e8f5ec;
+    --accent3:   #b5530a;   /* pomarańcz — nonsemantyczne */
+    --accent3bg: #fdf0e6;
+    --mono:      'JetBrains Mono', monospace;
+    --sans:      'Sora', sans-serif;
+    --radius:    6px;
+    --shadow:    0 1px 3px rgba(0,0,0,.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  /* ── TOP HEADER ─────────────────────────────────── */
+  .page-header {
+    background: var(--text);
+    color: #fff;
+    padding: 20px 32px 18px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+  .page-header h1 span {
+    color: #a8c8f8;
+  }
+  .page-header .sub {
+    font-size: 12px;
+    color: #aaa9a3;
+    margin-top: 4px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .badge-blue  { background: var(--accent1bg); color: var(--accent1); }
+  .badge-green { background: var(--accent2bg); color: var(--accent2); }
+  .badge-org   { background: var(--accent3bg); color: var(--accent3); }
+  .badge-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── LAYOUT ─────────────────────────────────────── */
+  .page-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 24px 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 820px) {
+    .page-body { grid-template-columns: 1fr; }
+  }
+  .full-width { grid-column: 1 / -1; }
+
+  /* ── SECTION CARDS ──────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .card-header {
+    padding: 11px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-header h2 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .card-header .cat-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dot-blue  { background: var(--accent1); }
+  .dot-green { background: var(--accent2); }
+  .dot-gray  { background: #999; }
+
+  /* ── TABLE INSIDE CARD ──────────────────────────── */
+  .tag-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .tag-table thead tr {
+    background: #f9f8f4;
+  }
+  .tag-table th {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 7px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .tag-table td {
+    padding: 7px 12px;
+    border-bottom: 1px solid #f0efe9;
+    vertical-align: top;
+    line-height: 1.45;
+  }
+  .tag-table tr:last-child td { border-bottom: none; }
+  .tag-table tr:hover td { background: #fafaf7; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .code-sem  { background: var(--accent1bg); color: var(--accent1); }
+  .code-vis  { background: var(--accent3bg); color: var(--accent3); }
+  .code-neu  { background: #f0efe9;          color: #444; }
+
+  .desc { color: var(--text); font-size: 12.5px; }
+  .note { color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+
+  .demo-cell { font-size: 12.5px; }
+  .demo-cell ins  { text-underline-offset: 2px; }
+  .demo-cell mark { border-radius: 2px; }
+  .demo-cell kbd  {
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    border: 1px solid #bbb; border-bottom-width: 2px;
+    background: #f5f5f0; color: #333; padding: 0 5px; border-radius: 3px;
+  }
+
+  /* ── CONTAINER VISUAL ───────────────────────────── */
+  .schema-wrap {
+    padding: 16px;
+  }
+  .schema {
+    border: 2px solid var(--accent1);
+    border-radius: 8px;
+    padding: 10px;
+    background: #f7faff;
+    position: relative;
+    font-size: 11.5px;
+  }
+  .sch-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent1);
+    background: var(--accent1bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .sch-desc {
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 6px;
+    display: block;
+    font-style: italic;
+  }
+  .sch-inner {
+    border: 1.5px dashed #93b8e8;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin: 4px 0;
+    background: rgba(255,255,255,.7);
+  }
+  .sch-flex {
+    display: flex;
+    gap: 8px;
+  }
+  .sch-flex .sch-inner {
+    flex: 1;
+  }
+  .schema-legend {
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .schema-legend span {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .leg-solid { width: 16px; height: 2px; background: var(--accent1); border-radius: 1px; }
+  .leg-dash  { width: 16px; height: 0; border-top: 1.5px dashed #93b8e8; }
+
+  /* ── HIGHLIGHT BOX ──────────────────────────────── */
+  .tip-box {
+    background: #fffbf0;
+    border-left: 3px solid #e6a817;
+    padding: 10px 14px;
+    margin: 0 16px 14px;
+    border-radius: 0 6px 6px 0;
+    font-size: 12px;
+    color: #5a4a1a;
+    line-height: 1.5;
+  }
+  .tip-box strong { color: #a07010; }
+
+  /* ── COMPARISON ROW (bottom) ────────────────────── */
+  .vs-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+  .vs-col {
+    padding: 14px 16px;
+  }
+  .vs-col h3 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .vs-col.left  h3 { color: var(--accent1); }
+  .vs-col.right h3 { color: var(--accent3); }
+  .vs-divider {
+    width: 1px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vs-divider span {
+    background: var(--border);
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 6px;
+    border-radius: 10px;
+    letter-spacing: .04em;
+    writing-mode: horizontal-tb;
+  }
+  .vs-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .vs-list li { display: flex; align-items: baseline; gap: 6px; font-size: 12px; }
+  .vs-list li .note { font-size: 11.5px; color: var(--muted); }
+
+  /* ── FOOTER ─────────────────────────────────────── */
+  .page-footer {
+    background: #f0efe9;
+    border-top: 1px solid var(--border);
+    padding: 12px 32px;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .page-footer a { color: var(--accent1); text-decoration: none; }
+  .page-footer a:hover { text-decoration: underline; }
+
+  @media print {
+    body { background: #fff; font-size: 11px; }
+    .page-header { padding: 14px 20px; }
+    .page-body { padding: 14px 20px; gap: 12px; }
+    .card { box-shadow: none; }
+    .page-footer { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+<header class="page-header">
+  <div>
+    <h1>Semantyczny <span>HTML5</span> — ściągawka</h1>
+    <p class="sub">Egzamin zawodowy INF.03 · Tworzenie i administrowanie stronami internetowymi</p>
+  </div>
+  <div class="badge-row">
+    <span class="badge badge-blue"><span class="badge-dot dot-blue"></span>tagi kontenerowe</span>
+    <span class="badge badge-green"><span class="badge-dot dot-green"></span>tagi inline semantyczne</span>
+    <span class="badge badge-org"><span class="badge-dot" style="background:var(--accent3)"></span>niesemanty­czny odpowiednik</span>
+  </div>
+</header>
+
+<!-- ══ BODY ════════════════════════════════════════════════════════ -->
+<div class="page-body">
+
+  <!-- ── CZYM JEST SEMANTYKA ── -->
+  <div class="card full-width">
+    <div class="card-header">
+      <span class="cat-dot dot-gray"></span>
+      <h2>Czym jest semantyka HTML?</h2>
+    </div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0;">
+      <div style="padding:12px 16px; border-right:1px solid var(--border);">
+        <p style="font-size:12.5px;line-height:1.6;"><strong>Tag semantyczny</strong> niesie informację o <em>znaczeniu</em> treści — dla przeglądarki, czytnika ekranu (NVDA, JAWS), wyszukiwarki (SEO) i innego programisty czytającego kod.</p>
+      </div>
+      <div style="padding:12px 16px; border-right:1px solid var(--border);">
+        <p style="font-size:12.5px;line-height:1.6;"><strong>Tag niesemantyczny</strong> (<code class="code-neu">&lt;div&gt;</code>, <code class="code-neu">&lt;span&gt;</code>) to pusty kontener — opisuje <em>wygląd lub układ</em>, ale nie mówi nic o roli treści w dokumencie.</p>
+      </div>
+      <div style="padding:12px 16px;">
+        <p style="font-size:12.5px;line-height:1.6;"><strong>Efekt wizualny może być identyczny</strong> — różnica leży w warstwie znaczeniowej (DOM, accessibility tree, schema.org). Na egzaminie INF.03 liczy się umiejętność wyboru właściwego tagu.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAGI KONTENEROWE — SCHEMAT ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-blue"></span>
+      <h2>Tagi kontenerowe — struktura strony</h2>
+    </div>
+    <div class="schema-wrap">
+      <div class="schema">
+        <span class="sch-tag">&lt;body&gt;</span>
+        <span class="sch-desc">całe ciało dokumentu</span>
+
+        <div class="sch-inner">
+          <span class="sch-tag">&lt;header&gt;</span>
+          <span class="sch-desc">nagłówek strony lub sekcji (logo, tytuł, nawigacja górna)</span>
+          <div class="sch-inner" style="display:inline-block; padding:3px 8px;">
+            <span class="sch-tag">&lt;nav&gt;</span>
+            <span style="font-size:11px;color:var(--muted);"> — główna nawigacja</span>
+          </div>
+        </div>
+
+        <div class="sch-inner" style="margin-top:6px;">
+          <span class="sch-tag">&lt;main&gt;</span>
+          <span class="sch-desc">unikalny, główny obszar treści (tylko jeden na stronie)</span>
+          <div class="sch-flex">
+            <div class="sch-inner">
+              <span class="sch-tag">&lt;article&gt;</span>
+              <span style="font-size:11px;color:var(--muted);display:block;"> — samodzielna treść (post, news)</span>
+              <div class="sch-inner" style="margin-top:4px;">
+                <span class="sch-tag">&lt;section&gt;</span>
+                <span style="font-size:11px;color:var(--muted);"> — tematyczna część artykułu</span>
+              </div>
+            </div>
+            <div class="sch-inner">
+              <span class="sch-tag">&lt;aside&gt;</span>
+              <span style="font-size:11px;color:var(--muted);display:block;"> — treść poboczna</span>
+              <span style="font-size:11px;color:var(--muted);">(reklama, box, ciekawostka)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sch-flex" style="margin-top:6px;">
+          <div class="sch-inner">
+            <span class="sch-tag">&lt;figure&gt;</span>
+            <span style="font-size:11px;color:var(--muted);display:block;"> — ilustracja, wykres, kod</span>
+            <div class="sch-inner" style="margin-top:4px;">
+              <span class="sch-tag">&lt;figcaption&gt;</span>
+            </div>
+          </div>
+          <div class="sch-inner">
+            <span class="sch-tag">&lt;details&gt;</span>
+            <span style="font-size:11px;color:var(--muted);display:block;"> — rozwijana sekcja</span>
+            <div class="sch-inner" style="margin-top:4px;">
+              <span class="sch-tag">&lt;summary&gt;</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sch-inner" style="margin-top:6px;">
+          <span class="sch-tag">&lt;footer&gt;</span>
+          <span class="sch-desc" style="margin:0"> — stopka strony lub sekcji (autor, copyright, kontakt)</span>
+        </div>
+      </div>
+      <div class="schema-legend">
+        <span><span class="leg-solid"></span> element semantyczny</span>
+        <span><span class="leg-dash"></span> element zagnieżdżony</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAGI KONTENEROWE — TABELA ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-blue"></span>
+      <h2>Tagi kontenerowe — opisy</h2>
+    </div>
+    <div class="tip-box">
+      <strong>Zamiennik niesemantyczny:</strong> zawsze <code class="code-neu">&lt;div&gt;</code>. Efekt wizualny identyczny — brak informacji o roli obszaru na stronie.
+    </div>
+    <table class="tag-table">
+      <thead><tr>
+        <th style="width:20%">Tag</th>
+        <th>Znaczenie semantyczne</th>
+        <th>Kiedy stosować?</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="code-sem">&lt;header&gt;</code></td>
+          <td><p class="desc">Nagłówek strony lub sekcji</p></td>
+          <td><p class="note">Logo, tytuł, nawigacja. Może pojawić się wewnątrz <code class="code-sem">&lt;article&gt;</code>.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;nav&gt;</code></td>
+          <td><p class="desc">Blok nawigacyjny</p></td>
+          <td><p class="note">Tylko do głównych zestawów linków. Nie każda lista linków to <code class="code-sem">&lt;nav&gt;</code>.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;main&gt;</code></td>
+          <td><p class="desc">Główna, unikalna treść strony</p></td>
+          <td><p class="note">Tylko jeden na stronę. Nie obejmuje headerów, nav, stopki.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;article&gt;</code></td>
+          <td><p class="desc">Samodzielna, kompletna treść</p></td>
+          <td><p class="note">Post blogowy, artykuł, news, komentarz. Może istnieć poza stroną.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;section&gt;</code></td>
+          <td><p class="desc">Tematyczna sekcja dokumentu</p></td>
+          <td><p class="note">Powinna mieć nagłówek (<code class="code-neu">h2–h6</code>). Nie zastępuje <code class="code-neu">&lt;div&gt;</code> dla stylowania.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;aside&gt;</code></td>
+          <td><p class="desc">Treść poboczna, luźno powiązana</p></td>
+          <td><p class="note">Sidebar, box z ciekawostką, reklama, powiązane artykuły.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;footer&gt;</code></td>
+          <td><p class="desc">Stopka strony lub sekcji</p></td>
+          <td><p class="note">Może wystąpić wewnątrz <code class="code-sem">&lt;article&gt;</code> — autor, data, tagi.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;figure&gt;</code></td>
+          <td><p class="desc">Ilustracja, wykres, blok kodu</p></td>
+          <td><p class="note">Treść, do której odwołuje się tekst, ale która może być wyciągnięta poza przepływ.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;figcaption&gt;</code></td>
+          <td><p class="desc">Podpis do <code class="code-sem">&lt;figure&gt;</code></p></td>
+          <td><p class="note">Pierwsze lub ostatnie dziecko <code class="code-sem">&lt;figure&gt;</code>.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;details&gt;</code></td>
+          <td><p class="desc">Rozwijana sekcja (bez JS)</p></td>
+          <td><p class="note">Natywny akordeon. Atrybut <code class="code-neu">open</code> — domyślnie rozwinięty.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;summary&gt;</code></td>
+          <td><p class="desc">Widoczny nagłówek <code class="code-sem">&lt;details&gt;</code></p></td>
+          <td><p class="note">Klikalna etykieta akordeonu.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;address&gt;</code></td>
+          <td><p class="desc">Dane kontaktowe autora/firmy</p></td>
+          <td><p class="note">Nie do adresów pocztowych w środku treści — tylko do kontaktu powiązanego z dokumentem.</p></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;dialog&gt;</code></td>
+          <td><p class="desc">Natywne okno dialogowe / modal</p></td>
+          <td><p class="note">Metoda <code class="code-neu">.showModal()</code> otwiera z trybem focus-trap. HTML5.1+.</p></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── INLINE SEMANTYCZNE — NACISK ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-green"></span>
+      <h2>Tagi inline — nacisk i wyróżnienie</h2>
+    </div>
+    <table class="tag-table">
+      <thead><tr>
+        <th style="width:20%">Tag</th>
+        <th style="width:24%">Niesemantyczny</th>
+        <th>Różnica</th>
+        <th style="width:22%">Demo</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="code-sem">&lt;strong&gt;</code></td>
+          <td><code class="code-vis">&lt;b&gt;</code></td>
+          <td><p class="desc">Treść ważna / krytyczna</p><p class="note"><code class="code-sem">&lt;b&gt;</code> to same pogrubienie bez znaczenia; <code class="code-sem">&lt;strong&gt;</code> sygnalizuje wagę czytnikowi ekranu</p></td>
+          <td class="demo-cell"><strong>Uwaga!</strong> vs <b>pogrubione</b></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;em&gt;</code></td>
+          <td><code class="code-vis">&lt;i&gt;</code></td>
+          <td><p class="desc">Emfaza — zmienia sens zdania</p><p class="note"><code class="code-sem">&lt;i&gt;</code> to kursywa stylistyczna (tytuły, obcojęzyczne słowa)</p></td>
+          <td class="demo-cell"><em>ona</em> to zrobiła</td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;mark&gt;</code></td>
+          <td><code class="code-vis">&lt;span style="background:yellow"&gt;</code></td>
+          <td><p class="desc">Wyróżnienie w kontekście (wynik wyszukiwania)</p><p class="note">Informuje o trafności, nie tylko koloruje</p></td>
+          <td class="demo-cell">znaleziono: <mark>html</mark></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;ins&gt;</code></td>
+          <td><code class="code-vis">&lt;u&gt;</code></td>
+          <td><p class="desc">Tekst wstawiony (historia zmian)</p><p class="note"><code class="code-sem">&lt;u&gt;</code> to samo podkreślenie bez kontekstu edycji</p></td>
+          <td class="demo-cell">cena: <del>100 zł</del> <ins>80 zł</ins></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;del&gt;</code></td>
+          <td><code class="code-vis">&lt;s&gt;</code></td>
+          <td><p class="desc">Tekst usunięty (historia zmian)</p><p class="note"><code class="code-sem">&lt;s&gt;</code> to przekreślenie dekoracyjne (nieaktualne info)</p></td>
+          <td class="demo-cell"><del>stare</del> vs <s>nieaktualne</s></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;small&gt;</code></td>
+          <td><code class="code-vis">&lt;span style="font-size:small"&gt;</code></td>
+          <td><p class="desc">Drobny druk, uwagi prawne</p><p class="note">Niesie semantykę "adnotacji", a nie tylko zmniejsza rozmiar</p></td>
+          <td class="demo-cell"><small>© 2025 Prawa zastrzeżone</small></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── INLINE SEMANTYCZNE — KONTEKST ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-green"></span>
+      <h2>Tagi inline — kontekst i dane</h2>
+    </div>
+    <table class="tag-table">
+      <thead><tr>
+        <th style="width:20%">Tag</th>
+        <th style="width:24%">Niesemantyczny</th>
+        <th>Znaczenie</th>
+        <th style="width:22%">Demo</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="code-sem">&lt;abbr&gt;</code></td>
+          <td><code class="code-vis">&lt;span&gt;</code></td>
+          <td><p class="desc">Skrót / akronim z rozwinięciem</p><p class="note">Atrybut <code class="code-neu">title="..."</code> — czytnik ekranu odczytuje pełną formę</p></td>
+          <td class="demo-cell"><abbr title="HyperText Markup Language">HTML</abbr></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;cite&gt;</code></td>
+          <td><code class="code-vis">&lt;i&gt;</code></td>
+          <td><p class="desc">Tytuł cytowanego dzieła</p><p class="note">Kursywa odwołuje się do źródła — inaczej niż <code class="code-sem">&lt;em&gt;</code></p></td>
+          <td class="demo-cell"><cite>Pan Tadeusz</cite></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;time&gt;</code></td>
+          <td><code class="code-vis">&lt;span&gt;</code></td>
+          <td><p class="desc">Data lub godzina czytelna maszynowo</p><p class="note">Atrybut <code class="code-neu">datetime="2025-09-01"</code> dla wyszukiwarek i kalendarzy</p></td>
+          <td class="demo-cell"><time datetime="2025-09-01">1 IX 2025</time></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;dfn&gt;</code></td>
+          <td><code class="code-vis">&lt;i&gt;</code></td>
+          <td><p class="desc">Definiowany termin</p><p class="note">Wskazuje miejsce, gdzie termin jest po raz pierwszy wyjaśniany</p></td>
+          <td class="demo-cell"><dfn>Semantyka</dfn> to znaczenie</td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;blockquote&gt;</code></td>
+          <td><code class="code-vis">&lt;div&gt;</code></td>
+          <td><p class="desc">Długi cytat z zewnętrznego źródła</p><p class="note">Atrybut <code class="code-neu">cite="URL"</code> wskazuje źródło. Dla krótkich: <code class="code-sem">&lt;q&gt;</code></p></td>
+          <td class="demo-cell"><blockquote style="border-left:2px solid #ccc;padding-left:6px;font-style:italic;margin:0;font-size:11.5px;">"Wiedza to potęga"</blockquote></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;q&gt;</code></td>
+          <td><code class="code-vis">&lt;span&gt;</code></td>
+          <td><p class="desc">Krótki cytat inline</p><p class="note">Przeglądarka automatycznie dodaje cudzysłowy</p></td>
+          <td class="demo-cell">Powiedział: <q>cześć</q></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;bdo&gt;</code></td>
+          <td><code class="code-vis">&lt;span dir="rtl"&gt;</code></td>
+          <td><p class="desc">Wymuszenie kierunku tekstu (RTL/LTR)</p><p class="note">Atrybut <code class="code-neu">dir="rtl"</code> — języki arabski, hebrajski</p></td>
+          <td class="demo-cell"><bdo dir="rtl">HTML5</bdo></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── INLINE SEMANTYCZNE — KOD ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-green"></span>
+      <h2>Tagi inline — kod i technikalia</h2>
+    </div>
+    <table class="tag-table">
+      <thead><tr>
+        <th style="width:20%">Tag</th>
+        <th style="width:24%">Niesemantyczny</th>
+        <th>Znaczenie</th>
+        <th style="width:22%">Demo</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="code-sem">&lt;code&gt;</code></td>
+          <td><code class="code-vis">&lt;span style="font-family:mono"&gt;</code></td>
+          <td><p class="desc">Fragment kodu źródłowego</p><p class="note">Informuje czytnik ekranu, że to kod — nie tylko czcionka</p></td>
+          <td class="demo-cell"><code style="background:#f0efe9;border-radius:3px;">console.log()</code></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;pre&gt;</code></td>
+          <td><code class="code-vis">&lt;div style="white-space:pre"&gt;</code></td>
+          <td><p class="desc">Tekst preformatowany (zachowuje spacje i entery)</p><p class="note">Zwykle opakowuje <code class="code-sem">&lt;code&gt;</code> przy blokach kodu</p></td>
+          <td class="demo-cell"><pre style="font-size:11px;background:#f0efe9;padding:3px 6px;border-radius:3px;">x = 1
+y = 2</pre></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;kbd&gt;</code></td>
+          <td><code class="code-vis">&lt;span&gt;</code></td>
+          <td><p class="desc">Klawisz klawiatury / wejście użytkownika</p><p class="note">Dosłowna instrukcja co nacisnąć</p></td>
+          <td class="demo-cell">wciśnij <kbd>Ctrl</kbd>+<kbd>S</kbd></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;var&gt;</code></td>
+          <td><code class="code-vis">&lt;i&gt;</code></td>
+          <td><p class="desc">Zmienna matematyczna lub w kodzie</p><p class="note">Odróżnia zmienną od stylistycznej kursywy</p></td>
+          <td class="demo-cell"><var>x</var> = <var>a</var>² + <var>b</var>²</td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;samp&gt;</code></td>
+          <td><code class="code-vis">&lt;code&gt;</code></td>
+          <td><p class="desc">Wyjście / wynik działania programu</p><p class="note">Output, a nie input — inny kontekst niż <code class="code-sem">&lt;code&gt;</code></p></td>
+          <td class="demo-cell"><samp style="font-family:monospace;font-size:12px;">Error 404</samp></td>
+        </tr>
+        <tr>
+          <td><code class="code-sem">&lt;sup&gt; / &lt;sub&gt;</code></td>
+          <td><code class="code-vis">&lt;span style="..."&gt;</code></td>
+          <td><p class="desc">Indeks górny / dolny</p><p class="note">Niosą matematyczne / chemiczne znaczenie, nie tylko pozycję</p></td>
+          <td class="demo-cell">H<sub>2</sub>O, x<sup>2</sup></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── KIEDY CO UŻYWAĆ ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="cat-dot dot-gray"></span>
+      <h2>Typowe pułapki egzaminacyjne</h2>
+    </div>
+    <table class="tag-table">
+      <thead><tr>
+        <th>Pytanie / sytuacja</th>
+        <th style="width:28%">Poprawny tag</th>
+        <th style="width:32%">Błędny wybór</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><p class="desc">Chcę wyświetlić kursywę dla tytułu książki</p></td>
+          <td><code class="code-sem">&lt;cite&gt;</code></td>
+          <td><code class="code-vis">&lt;em&gt;</code> <span class="note">— em to nacisk logiczny, nie tytuł</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Chcę przekreślić starą cenę (nieaktualną)</p></td>
+          <td><code class="code-sem">&lt;s&gt;</code></td>
+          <td><code class="code-vis">&lt;del&gt;</code> <span class="note">— del oznacza usunięcie w historii edycji</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Chcę zaznaczyć fragment jako wynik wyszukiwania</p></td>
+          <td><code class="code-sem">&lt;mark&gt;</code></td>
+          <td><code class="code-vis">&lt;strong&gt;</code> <span class="note">— strong to ważność, nie trafność</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Chcę wyświetlić skrót „HTML" z rozwinięciem po najechaniu</p></td>
+          <td><code class="code-sem">&lt;abbr title="HyperText..."&gt;</code></td>
+          <td><code class="code-vis">&lt;span title="..."&gt;</code> <span class="note">— traci semantykę skrótu</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Kontener na logo + menu górne</p></td>
+          <td><code class="code-sem">&lt;header&gt;</code></td>
+          <td><code class="code-vis">&lt;div id="header"&gt;</code> <span class="note">— brak roli w drzewie dostępności</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Lista linków do mediów społecznościowych w stopce</p></td>
+          <td><code class="code-sem">&lt;ul&gt;&lt;li&gt;&lt;a&gt;</code></td>
+          <td><code class="code-vis">&lt;nav&gt;</code> <span class="note">— nav tylko dla głównych zestawów nawigacji</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Klawisz na klawiaturze w instrukcji obsługi</p></td>
+          <td><code class="code-sem">&lt;kbd&gt;</code></td>
+          <td><code class="code-vis">&lt;code&gt;</code> <span class="note">— code to fragment kodu, nie klawisze</span></td>
+        </tr>
+        <tr>
+          <td><p class="desc">Wynik wyświetlony przez program (output)</p></td>
+          <td><code class="code-sem">&lt;samp&gt;</code></td>
+          <td><code class="code-vis">&lt;code&gt;</code> <span class="note">— code to kod źródłowy (input), nie output</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SEM VS NIESEM PORÓWNANIE ── -->
+  <div class="card full-width">
+    <div class="card-header">
+      <span class="cat-dot dot-gray"></span>
+      <h2>Semantyczny vs niesemantyczny — zestawienie</h2>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-col left">
+        <h3>✓ Zalety semantycznych tagów</h3>
+        <ul class="vs-list">
+          <li><code class="code-sem">&lt;nav&gt;</code> <span class="note">— czytnik ekranu ogłasza „obszar nawigacji", użytkownik może go pominąć</span></li>
+          <li><code class="code-sem">&lt;main&gt;</code> <span class="note">— skrót klawiszowy w NVDA/JAWS przenosi wprost do treści</span></li>
+          <li><code class="code-sem">&lt;article&gt;</code> <span class="note">— Google wyodrębnia treść do rich snippets (schema.org)</span></li>
+          <li><code class="code-sem">&lt;time datetime="..."&gt;</code> <span class="note">— wyszukiwarka zna dokładną datę, może filtrować</span></li>
+          <li><code class="code-sem">&lt;strong&gt;</code> <span class="note">— czytnik ekranu zmienia ton głosu przy słowach ważnych</span></li>
+          <li><code class="code-sem">&lt;figure&gt;/&lt;figcaption&gt;</code> <span class="note">— powiązanie obrazu z podpisem w drzewie dostępności</span></li>
+        </ul>
+      </div>
+      <div class="vs-divider"><span>vs</span></div>
+      <div class="vs-col right">
+        <h3>✗ Wady niesemantycznych tagów</h3>
+        <ul class="vs-list">
+          <li><code class="code-vis">&lt;div id="nav"&gt;</code> <span class="note">— brak roli ARIA, czytnik ekranu ignoruje strukturę</span></li>
+          <li><code class="code-vis">&lt;div id="main"&gt;</code> <span class="note">— wymaga ręcznego dodania <code class="code-neu">role="main"</code>, łatwo zapomnieć</span></li>
+          <li><code class="code-vis">&lt;div class="article"&gt;</code> <span class="note">— wyszukiwarki nie rozpoznają struktury, gorszy SEO</span></li>
+          <li><code class="code-vis">&lt;span&gt;</code> + CSS <span class="note">— żadnych metadanych daty, przeglądarki nie mogą parsować</span></li>
+          <li><code class="code-vis">&lt;b&gt;</code> <span class="note">— tylko wygląd, zmiana stylu CSS nie zmienia znaczenia</span></li>
+          <li><code class="code-vis">&lt;div&gt;&lt;img&gt;&lt;p&gt;</code> <span class="note">— brak logicznego powiązania między obrazem a opisem</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<footer class="page-footer">
+  <span>Egzamin zawodowy INF.03 · Kwalifikacja: tworzenie i administrowanie stronami i aplikacjami internetowymi</span>
+  <span>Źródła: <a href="https://html.spec.whatwg.org" target="_blank">WHATWG HTML Living Standard</a> · <a href="https://developer.mozilla.org" target="_blank">MDN Web Docs</a></span>
+</footer>
+
+</body>
+</html>
