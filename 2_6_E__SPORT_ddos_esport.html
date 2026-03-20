@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ataki DDoS – Ochrona Sieci Turniejowych | E-Sport</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #050810;
+    --bg2: #080d1a;
+    --bg3: #0c1220;
+    --neon: #00f5c4;
+    --neon2: #ff3c6e;
+    --neon3: #f5a623;
+    --neon4: #6a5acd;
+    --text: #c8d8e8;
+    --muted: #5a7090;
+    --border: #1a2840;
+    --glow: 0 0 12px rgba(0,245,196,0.5);
+    --glow2: 0 0 12px rgba(255,60,110,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,196,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,196,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.05) 2px,
+      rgba(0,0,0,0.05) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,8,16,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 54px;
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--neon);
+    text-shadow: var(--glow);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--neon); }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    overflow: hidden;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2.4rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: #fff;
+    letter-spacing: -1px;
+    animation: fadeDown 0.8s 0.1s ease both;
+  }
+
+  .hero h1 span {
+    color: var(--neon2);
+    text-shadow: var(--glow2);
+  }
+
+  .hero-sub {
+    margin-top: 1.5rem;
+    max-width: 600px;
+    color: var(--muted);
+    font-size: 1.1rem;
+    animation: fadeDown 0.8s 0.2s ease both;
+  }
+
+  .hero-badges {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeDown 0.8s 0.3s ease both;
+  }
+
+  .badge {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.35rem 0.9rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--neon);
+  }
+
+  /* SECTION */
+  section {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--neon);
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--neon) 0%, transparent 60%);
+    margin-bottom: 2.5rem;
+  }
+
+  /* DEFINICJA */
+  .def-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--neon);
+    border-radius: 6px;
+    padding: 1.8rem 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .def-card p { color: var(--text); line-height: 1.8; }
+
+  .def-card strong { color: var(--neon); }
+
+  /* DIAGRAM SVG */
+  .diagram-wrapper {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    overflow-x: auto;
+  }
+
+  #ddos-svg {
+    width: 100%;
+    max-width: 900px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* PACKET ANIMATION */
+  @keyframes movePacket1 { 0%,100%{opacity:0} 10%{opacity:1} 80%{opacity:1} 90%{opacity:0} }
+  @keyframes movePacket2 { 0%,100%{opacity:0} 20%{opacity:1} 85%{opacity:1} 95%{opacity:0} }
+  @keyframes movePacket3 { 0%,100%{opacity:0} 30%{opacity:1} 90%{opacity:1} 98%{opacity:0} }
+  @keyframes pulse { 0%,100%{r:18} 50%{r:22} }
+  @keyframes flashRed { 0%,100%{fill:#ff3c6e;opacity:0.15} 50%{fill:#ff3c6e;opacity:0.5} }
+  @keyframes botPulse { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+  .pkt { animation-timing-function: linear; animation-iteration-count: infinite; }
+  .pkt1 { animation: movePacket1 3s 0s infinite; }
+  .pkt2 { animation: movePacket2 3s 0.4s infinite; }
+  .pkt3 { animation: movePacket3 3s 0.8s infinite; }
+  .pkt4 { animation: movePacket1 2.5s 0.2s infinite; }
+  .pkt5 { animation: movePacket2 2.8s 0.6s infinite; }
+  .pkt6 { animation: movePacket3 3.2s 1.0s infinite; }
+  .pkt7 { animation: movePacket1 2.2s 0.5s infinite; }
+  .pkt8 { animation: movePacket2 3.1s 0.9s infinite; }
+  .pkt9 { animation: movePacket3 2.6s 1.3s infinite; }
+
+  .target-pulse { animation: pulse 1s ease-in-out infinite; }
+  .target-flash { animation: flashRed 1s ease-in-out infinite; }
+  .bot-pulse { animation: botPulse 2s ease-in-out infinite; }
+
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -20; }
+  }
+  .flow-line { animation: dashFlow 0.8s linear infinite; }
+
+  /* TYPY ATAKOW */
+  .types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .type-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .type-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .type-card.vol::before { background: var(--neon2); }
+  .type-card.proto::before { background: var(--neon3); }
+  .type-card.app::before { background: var(--neon4); }
+
+  .type-card:hover { transform: translateY(-3px); border-color: var(--neon); }
+
+  .type-icon {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .type-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .type-layer {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    display: inline-block;
+  }
+
+  .vol .type-layer { color: var(--neon2); background: rgba(255,60,110,0.1); border: 1px solid rgba(255,60,110,0.3); }
+  .proto .type-layer { color: var(--neon3); background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); }
+  .app .type-layer { color: #a89aff; background: rgba(106,90,205,0.1); border: 1px solid rgba(106,90,205,0.3); }
+
+  .type-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+
+  .attack-examples {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .example-tag {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* BOTNET SECTION */
+  .botnet-explainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  @media (max-width: 700px) {
+    .botnet-explainer { grid-template-columns: 1fr; }
+  }
+
+  .step-list { list-style: none; }
+
+  .step-list li {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.4rem;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--neon);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--neon);
+    text-shadow: var(--glow);
+    margin-top: 2px;
+  }
+
+  .step-content strong {
+    display: block;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .step-content span { color: var(--muted); font-size: 0.9rem; }
+
+  /* ESPORT IMPACT */
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .impact-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.3rem;
+    text-align: center;
+  }
+
+  .impact-icon { font-size: 2.2rem; display: block; margin-bottom: 0.6rem; }
+
+  .impact-card h4 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--neon2);
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+  }
+
+  .impact-card p { color: var(--muted); font-size: 0.88rem; }
+
+  /* PROTECTION */
+  .protection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .prot-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    border-left: 3px solid var(--neon);
+    transition: transform 0.3s;
+  }
+
+  .prot-card:hover { transform: translateY(-3px); }
+
+  .prot-card h4 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--neon);
+    margin-bottom: 0.8rem;
+    letter-spacing: 1px;
+  }
+
+  .prot-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; }
+
+  .prot-tag {
+    display: inline-block;
+    margin-top: 0.8rem;
+    background: rgba(0,245,196,0.08);
+    border: 1px solid rgba(0,245,196,0.2);
+    border-radius: 3px;
+    padding: 0.2rem 0.6rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--neon);
+    letter-spacing: 1px;
+  }
+
+  /* QUIZ */
+  .quiz-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+  }
+
+  .quiz-q {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .quiz-q:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .quiz-q p {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .quiz-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.7rem 1rem;
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+  }
+
+  .quiz-btn:hover { border-color: var(--neon); color: var(--neon); background: rgba(0,245,196,0.05); }
+  .quiz-btn.correct { border-color: var(--neon); background: rgba(0,245,196,0.12); color: var(--neon); }
+  .quiz-btn.wrong { border-color: var(--neon2); background: rgba(255,60,110,0.1); color: var(--neon2); }
+  .quiz-btn:disabled { cursor: default; }
+
+  .quiz-feedback {
+    margin-top: 0.8rem;
+    padding: 0.7rem 1rem;
+    border-radius: 5px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+    display: none;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.ok { background: rgba(0,245,196,0.08); border: 1px solid rgba(0,245,196,0.2); color: var(--neon); }
+  .quiz-feedback.fail { background: rgba(255,60,110,0.08); border: 1px solid rgba(255,60,110,0.2); color: var(--neon2); }
+
+  /* FOOTER */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: rgba(0,245,196,0.04);
+    border: 1px solid rgba(0,245,196,0.15);
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .highlight-box p {
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .highlight-box strong { color: var(--neon); }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .tab-btn.active, .tab-btn:hover {
+    border-color: var(--neon);
+    color: var(--neon);
+    background: rgba(0,245,196,0.06);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⬡ DDoS // E-SPORT SEC</div>
+  <ul class="nav-links">
+    <li><a href="#definicja">Definicja</a></li>
+    <li><a href="#schemat">Schemat</a></li>
+    <li><a href="#typy">Typy ataków</a></li>
+    <li><a href="#botnet">Botnet</a></li>
+    <li><a href="#esport">E-Sport</a></li>
+    <li><a href="#ochrona">Ochrona</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">// moduł 07 — bezpieczeństwo sieci turniejowych</p>
+  <h1>Ataki<br><span>DDoS</span></h1>
+  <p class="hero-sub">Jak hakerzy próbują wyłączyć serwery turniejowe — i dlaczego to problem dla całego świata e-sportu</p>
+  <div class="hero-badges">
+    <span class="badge">INF.03</span>
+    <span class="badge">WARSTWA SIECIOWA</span>
+    <span class="badge">OCHRONA INFRASTRUKTURY</span>
+    <span class="badge">E-SPORT SEC</span>
+  </div>
+</div>
+
+<!-- DEFINICJA -->
+<section id="definicja">
+  <div class="section-label">// 01 — podstawy</div>
+  <h2 class="section-title">Czym jest atak DDoS?</h2>
+  <div class="section-divider"></div>
+
+  <div class="def-card reveal">
+    <p>
+      <strong>DDoS</strong> (ang. <strong>Distributed Denial of Service</strong> — Rozproszona Odmowa Usługi) to cyberatak, 
+      w którym napastnik wysyła do serwera ofiary <strong>ogromną liczbę zapytań</strong> z wielu urządzeń jednocześnie. 
+      Celem jest przeciążenie infrastruktury tak, by <strong>legalni użytkownicy nie mogli korzystać z usługi</strong>.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;" class="reveal">
+    <div class="def-card" style="border-left-color:var(--neon2)">
+      <p><strong style="color:var(--neon2)">DoS</strong><br><br>
+      Atak z <strong>jednego</strong> komputera. Łatwy do zablokowania — wystarczy zbanować jeden adres IP.</p>
+    </div>
+    <div class="def-card" style="border-left-color:var(--neon)">
+      <p><strong style="color:var(--neon)">DDoS</strong><br><br>
+      Atak z <strong>tysięcy/milionów</strong> urządzeń. Trudny do zablokowania — adresy IP są różne i rozsiane po całym świecie.</p>
+    </div>
+    <div class="def-card" style="border-left-color:var(--neon3)">
+      <p><strong style="color:var(--neon3)">Cele ataku</strong><br><br>
+      Wyłudzenie (okup), sabotaż konkurencji, protest, dywersja lub po prostu <strong>zniszczenie turnieju</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEMAT -->
+<section id="schemat">
+  <div class="section-label">// 02 — jak to działa</div>
+  <h2 class="section-title">Schemat ataku DDoS</h2>
+  <div class="section-divider"></div>
+
+  <div class="diagram-wrapper reveal">
+    <svg id="ddos-svg" viewBox="0 0 880 480" xmlns="http://www.w3.org/2000/svg" font-family="'Share Tech Mono',monospace">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ff3c6e"/>
+        </marker>
+        <marker id="arrC" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="rgba(255,60,110,0.4)"/>
+        </marker>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow2">
+          <feGaussianBlur stdDeviation="5" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- BG boxes -->
+      <rect x="8" y="8" width="864" height="464" rx="8" fill="#080d1a" stroke="#1a2840" stroke-width="1"/>
+
+      <!-- ===== ATAKUJĄCY (C&C) ===== -->
+      <rect x="30" y="180" width="130" height="70" rx="6" fill="#0c1220" stroke="#6a5acd" stroke-width="1.5"/>
+      <text x="95" y="208" text-anchor="middle" fill="#a89aff" font-size="10" letter-spacing="1">ATAKUJĄCY</text>
+      <text x="95" y="224" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">(C&amp;C)</text>
+      <text x="95" y="238" text-anchor="middle" fill="#5a7090" font-size="9">Serwer dowodzenia</text>
+      <circle cx="95" cy="168" r="18" fill="#0c1220" stroke="#6a5acd" stroke-width="1.5"/>
+      <text x="95" y="173" text-anchor="middle" font-size="16">👤</text>
+
+      <!-- C&C to bots lines -->
+      <line x1="160" y1="195" x2="240" y2="110" stroke="rgba(106,90,205,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrC)"/>
+      <line x1="160" y1="215" x2="240" y2="215" stroke="rgba(106,90,205,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrC)"/>
+      <line x1="160" y1="235" x2="240" y2="310" stroke="rgba(106,90,205,0.4)" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrC)"/>
+
+      <!-- ===== BOTNET ===== -->
+      <!-- Bot 1 -->
+      <rect x="240" y="70" width="110" height="66" rx="6" fill="#0c1220" stroke="#1a2840" stroke-width="1.5" class="bot-pulse"/>
+      <text x="295" y="94" text-anchor="middle" fill="#5a7090" font-size="9" letter-spacing="1">URZĄDZENIE #1</text>
+      <text x="295" y="109" text-anchor="middle" fill="#c8d8e8" font-size="10">💻 Komputer</text>
+      <text x="295" y="125" text-anchor="middle" fill="#ff3c6e" font-size="9">zainfekowany</text>
+
+      <!-- Bot 2 -->
+      <rect x="240" y="183" width="110" height="66" rx="6" fill="#0c1220" stroke="#1a2840" stroke-width="1.5" class="bot-pulse" style="animation-delay:0.5s"/>
+      <text x="295" y="207" text-anchor="middle" fill="#5a7090" font-size="9" letter-spacing="1">URZĄDZENIE #2</text>
+      <text x="295" y="222" text-anchor="middle" fill="#c8d8e8" font-size="10">📱 Telefon</text>
+      <text x="295" y="238" text-anchor="middle" fill="#ff3c6e" font-size="9">zainfekowany</text>
+
+      <!-- Bot 3 -->
+      <rect x="240" y="296" width="110" height="66" rx="6" fill="#0c1220" stroke="#1a2840" stroke-width="1.5" class="bot-pulse" style="animation-delay:1s"/>
+      <text x="295" y="320" text-anchor="middle" fill="#5a7090" font-size="9" letter-spacing="1">URZĄDZENIE #3</text>
+      <text x="295" y="335" text-anchor="middle" fill="#c8d8e8" font-size="10">📡 Router</text>
+      <text x="295" y="351" text-anchor="middle" fill="#ff3c6e" font-size="9">zainfekowany</text>
+
+      <!-- Extra bots (faded) -->
+      <rect x="248" y="390" width="94" height="40" rx="5" fill="#0c1220" stroke="#1a2840" stroke-width="1" opacity="0.5"/>
+      <text x="295" y="406" text-anchor="middle" fill="#5a7090" font-size="8">...i tysiące więcej</text>
+      <text x="295" y="421" text-anchor="middle" fill="#5a7090" font-size="8">urządzeń</text>
+
+      <!-- BOTNET label -->
+      <text x="295" y="52" text-anchor="middle" fill="#ff3c6e" font-size="10" letter-spacing="3">BOTNET</text>
+      <line x1="220" y1="56" x2="255" y2="56" stroke="#ff3c6e" stroke-width="0.5"/>
+      <line x1="335" y1="56" x2="370" y2="56" stroke="#ff3c6e" stroke-width="0.5"/>
+
+      <!-- ===== ARROWS bots to internet ===== -->
+      <!-- Bot1 → -->
+      <line x1="350" y1="103" x2="460" y2="170" stroke="#ff3c6e" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+      <!-- Bot2 → -->
+      <line x1="350" y1="216" x2="460" y2="216" stroke="#ff3c6e" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+      <!-- Bot3 → -->
+      <line x1="350" y1="329" x2="460" y2="262" stroke="#ff3c6e" stroke-width="1.5" marker-end="url(#arr)" opacity="0.7"/>
+
+      <!-- ===== INTERNET CLOUD ===== -->
+      <ellipse cx="500" cy="216" rx="42" ry="52" fill="#0c1220" stroke="#1a2840" stroke-width="1.5"/>
+      <ellipse cx="483" cy="196" rx="28" ry="22" fill="#0c1220" stroke="#1a2840" stroke-width="1"/>
+      <ellipse cx="518" cy="196" rx="26" ry="20" fill="#0c1220" stroke="#1a2840" stroke-width="1"/>
+      <text x="500" y="212" text-anchor="middle" fill="#5a7090" font-size="9" letter-spacing="1">INTER</text>
+      <text x="500" y="226" text-anchor="middle" fill="#5a7090" font-size="9" letter-spacing="1">NET</text>
+      <text x="500" y="243" text-anchor="middle" font-size="14">🌐</text>
+
+      <!-- ===== PACKETS ANIMATION ===== -->
+      <!-- From Bot1 path -->
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt1">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0s">
+          <mpath href="#path1"/>
+        </animateMotion>
+      </circle>
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt4">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0.7s">
+          <mpath href="#path1"/>
+        </animateMotion>
+      </circle>
+
+      <!-- From Bot2 path -->
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt2">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0.3s">
+          <mpath href="#path2"/>
+        </animateMotion>
+      </circle>
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt5">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="1.0s">
+          <mpath href="#path2"/>
+        </animateMotion>
+      </circle>
+
+      <!-- From Bot3 path -->
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt3">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="0.6s">
+          <mpath href="#path3"/>
+        </animateMotion>
+      </circle>
+      <circle r="5" fill="#ff3c6e" filter="url(#glow)" class="pkt pkt7">
+        <animateMotion dur="2s" repeatCount="indefinite" begin="1.3s">
+          <mpath href="#path3"/>
+        </animateMotion>
+      </circle>
+
+      <!-- After internet to server -->
+      <circle r="6" fill="#ff3c6e" filter="url(#glow2)" class="pkt pkt1">
+        <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.5s">
+          <mpath href="#path4"/>
+        </animateMotion>
+      </circle>
+      <circle r="6" fill="#ff3c6e" filter="url(#glow2)" class="pkt pkt2">
+        <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.9s">
+          <mpath href="#path4"/>
+        </animateMotion>
+      </circle>
+      <circle r="6" fill="#ff3c6e" filter="url(#glow2)" class="pkt pkt3">
+        <animateMotion dur="1.5s" repeatCount="indefinite" begin="1.3s">
+          <mpath href="#path4"/>
+        </animateMotion>
+      </circle>
+      <circle r="6" fill="#ff3c6e" filter="url(#glow2)" class="pkt pkt8">
+        <animateMotion dur="1.5s" repeatCount="indefinite" begin="0.2s">
+          <mpath href="#path4"/>
+        </animateMotion>
+      </circle>
+
+      <!-- Hidden paths for animation -->
+      <path id="path1" d="M350,103 L460,170" fill="none"/>
+      <path id="path2" d="M350,216 L460,216" fill="none"/>
+      <path id="path3" d="M350,329 L460,262" fill="none"/>
+      <path id="path4" d="M542,216 L680,216" fill="none"/>
+
+      <!-- ===== SERVER ===== -->
+      <line x1="542" y1="216" x2="676" y2="216" stroke="#ff3c6e" stroke-width="2" marker-end="url(#arr)" stroke-dasharray="8 3"/>
+
+      <rect x="676" y="140" width="160" height="152" rx="8" fill="#0c1220" stroke="#ff3c6e" stroke-width="2"/>
+      <!-- Flash bg -->
+      <rect x="676" y="140" width="160" height="152" rx="8" class="target-flash"/>
+
+      <text x="756" y="168" text-anchor="middle" fill="#ff3c6e" font-size="10" letter-spacing="2">SERWER</text>
+      <text x="756" y="184" text-anchor="middle" fill="#ff3c6e" font-size="10" letter-spacing="2">TURNIEJOWY</text>
+
+      <text x="756" y="210" text-anchor="middle" font-size="24">🖥️</text>
+
+      <rect x="700" y="224" width="112" height="16" rx="3" fill="#0c1220" stroke="#1a2840"/>
+      <rect x="700" y="224" width="112" height="16" rx="3" fill="#ff3c6e" opacity="0.6">
+        <animate attributeName="width" values="30;112;112;30" dur="2s" repeatCount="indefinite"/>
+      </rect>
+      <text x="756" y="236" text-anchor="middle" fill="#fff" font-size="8">PRZECIĄŻENIE CPU</text>
+
+      <text x="756" y="262" text-anchor="middle" fill="#ff3c6e" font-size="8" letter-spacing="1">● OFFLINE</text>
+      <text x="756" y="279" text-anchor="middle" fill="#5a7090" font-size="8">połączenia zerwane</text>
+
+      <!-- ===== NORMAL USER blocked ===== -->
+      <rect x="780" y="350" width="90" height="60" rx="6" fill="#0c1220" stroke="#1a2840" stroke-width="1"/>
+      <text x="825" y="373" text-anchor="middle" fill="#5a7090" font-size="9">GRACZ</text>
+      <text x="825" y="390" text-anchor="middle" font-size="16">🎮</text>
+      <text x="825" y="405" text-anchor="middle" fill="#ff3c6e" font-size="8">ZABLOKOWANY</text>
+
+      <line x1="820" y1="292" x2="820" y2="350" stroke="#ff3c6e" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+      <line x1="808" y1="316" x2="820" y2="316" stroke="#ff3c6e" stroke-width="2"/>
+      <line x1="808" y1="316" x2="818" y2="306" stroke="#ff3c6e" stroke-width="2"/>
+      <line x1="808" y1="316" x2="818" y2="326" stroke="#ff3c6e" stroke-width="2"/>
+
+      <!-- Labels -->
+      <text x="400" y="130" text-anchor="middle" fill="#ff3c6e" font-size="9" letter-spacing="1">RUCH ATAKU</text>
+      <text x="400" y="143" text-anchor="middle" fill="#ff3c6e" font-size="9">(gigabity danych)</text>
+
+      <text x="95" y="275" text-anchor="middle" fill="#a89aff" font-size="9" letter-spacing="1">wysyła</text>
+      <text x="95" y="287" text-anchor="middle" fill="#a89aff" font-size="9">komendy</text>
+    </svg>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#6a5acd"></div> Kanał C&C (dowodzenie)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff3c6e"></div> Ruch ataku DDoS</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1a2840;border:1px solid #ff3c6e"></div> Zainfekowane urządzenia (boty)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff3c6e;opacity:0.5"></div> Przeciążony serwer</div>
+    </div>
+  </div>
+
+  <div class="highlight-box reveal" style="margin-top:1.5rem">
+    <p>
+      <strong>Jak to działa krok po kroku:</strong><br>
+      1. Atakujący infekuje tysiące urządzeń złośliwym oprogramowaniem — tworzą one <strong>botnet</strong>.<br>
+      2. Przez serwer C&amp;C (Command &amp; Control) wysyła rozkaz: „atakujcie cel".<br>
+      3. Wszystkie boty jednocześnie zasypują serwer ofiary pakietami danych.<br>
+      4. Serwer nie jest w stanie obsłużyć tylu połączeń — <strong>przestaje odpowiadać</strong>.<br>
+      5. Prawdziwi gracze tracą połączenie z turniejem.
+    </p>
+  </div>
+</section>
+
+<!-- TYPY ATAKÓW -->
+<section id="typy">
+  <div class="section-label">// 03 — klasyfikacja</div>
+  <h2 class="section-title">Typy ataków DDoS</h2>
+  <div class="section-divider"></div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('all')">Wszystkie</button>
+    <button class="tab-btn" onclick="switchTab('vol')">Wolumetryczne</button>
+    <button class="tab-btn" onclick="switchTab('proto')">Protokołów</button>
+    <button class="tab-btn" onclick="switchTab('app')">Aplikacji</button>
+  </div>
+
+  <div class="types-grid">
+    <!-- WOLUMETRYCZNE -->
+    <div class="type-card vol reveal" data-type="vol">
+      <span class="type-icon">🌊</span>
+      <div class="type-name">Wolumetryczne</div>
+      <span class="type-layer">WARSTWA 3/4 — SIECIOWA</span>
+      <p>Zalewają łącze sieciowe ofiary ogromną ilością danych — jak wąż ogrodowy próbujący wypełnić ocean. Cel: całkowite zapchanie przepustowości łącza.</p>
+      <div class="attack-examples">
+        <span class="example-tag">UDP Flood</span>
+        <span class="example-tag">ICMP Flood</span>
+        <span class="example-tag">DNS Amplification</span>
+        <span class="example-tag">NTP Amplification</span>
+      </div>
+    </div>
+
+    <!-- PROTOKOŁÓW -->
+    <div class="type-card proto reveal" data-type="proto">
+      <span class="type-icon">🔗</span>
+      <div class="type-name">Protokołów</div>
+      <span class="type-layer">WARSTWA 3/4 — TRANSPORTOWA</span>
+      <p>Eksploatują słabości protokołów sieciowych (TCP, ICMP) i wyczerpują zasoby sprzętowe — tabele stanów zapór ogniowych i load balancerów.</p>
+      <div class="attack-examples">
+        <span class="example-tag">SYN Flood</span>
+        <span class="example-tag">Ping of Death</span>
+        <span class="example-tag">Smurf Attack</span>
+        <span class="example-tag">Fraggle Attack</span>
+      </div>
+    </div>
+
+    <!-- APLIKACJI -->
+    <div class="type-card app reveal" data-type="app">
+      <span class="type-icon">🎯</span>
+      <div class="type-name">Warstwy aplikacji</div>
+      <span class="type-layer">WARSTWA 7 — APLIKACJI</span>
+      <p>Najtrudniejsze do wykrycia — imitują prawdziwy ruch użytkowników. Atakują konkretne funkcje aplikacji webowych, zużywając zasoby serwera.</p>
+      <div class="attack-examples">
+        <span class="example-tag">HTTP Flood</span>
+        <span class="example-tag">Slowloris</span>
+        <span class="example-tag">RUDY Attack</span>
+        <span class="example-tag">DNS Query Flood</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYN FLOOD ZOOM -->
+  <div class="def-card reveal" style="margin-top:2rem; border-left-color:var(--neon3)">
+    <p>
+      <strong style="color:var(--neon3)">🔍 Szczegółowo: SYN Flood (najczęstszy atak w e-sporcie)</strong><br><br>
+      Normalnie połączenie TCP wymaga <strong>trójfazowego uzgadniania</strong> (3-way handshake): SYN → SYN-ACK → ACK.<br>
+      W ataku SYN Flood: bot wysyła setki tysięcy pakietów <strong>SYN bez odpowiedzi ACK</strong>.
+      Serwer czeka na potwierdzenia, które nigdy nie nadchodzą — jego kolejka połączeń się przepełnia i <strong>odmawia obsługi prawdziwych graczy</strong>.
+    </p>
+  </div>
+</section>
+
+<!-- BOTNET -->
+<section id="botnet">
+  <div class="section-label">// 04 — infrastruktura ataku</div>
+  <h2 class="section-title">Jak działa botnet?</h2>
+  <div class="section-divider"></div>
+
+  <div class="botnet-explainer reveal">
+    <ul class="step-list">
+      <li>
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <strong>Infekcja urządzeń</strong>
+          <span>Hakerzy rozsyłają złośliwe oprogramowanie (malware) przez e-mail, pirackie gry, fałszywe programy. Użytkownik nie wie, że jego urządzenie jest zainfekowane.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <strong>Rejestracja w botnecie</strong>
+          <span>Po infekcji urządzenie łączy się z serwerem C&amp;C (Command &amp; Control) i czeka na rozkazy. Może to trwać tygodniami bez żadnych widocznych objawów.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <strong>Skala botnetu</strong>
+          <span>Duże botnety liczą <strong>miliony urządzeń</strong>: komputery, smartfony, routery, drukarki, smart TV — wszystko co ma połączenie z internetem.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <strong>Otrzymanie rozkazu ataku</strong>
+          <span>Właściciel botnetu wysyła komendę: „atakujcie IP X przez Y sekund". Wszystkie boty jednocześnie zaczynają zasypywać cel pakietami.</span>
+        </div>
+      </li>
+      <li>
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <strong>Trudność wykrycia</strong>
+          <span>Ponieważ każdy bot ma inny adres IP i pochodzi z innego kraju, <strong>proste blokowanie IP nie działa</strong>. Ruch ataku miesza się z legalnym ruchem.</span>
+        </div>
+      </li>
+    </ul>
+
+    <div>
+      <!-- Mini botnet visual -->
+      <svg viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px;display:block;margin:0 auto">
+        <defs>
+          <filter id="gB">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect width="340" height="340" rx="8" fill="#080d1a" stroke="#1a2840"/>
+
+        <!-- Center: C&C -->
+        <circle cx="170" cy="170" r="38" fill="#0c1220" stroke="#6a5acd" stroke-width="2"/>
+        <text x="170" y="166" text-anchor="middle" fill="#a89aff" font-size="9" letter-spacing="1">C&amp;C</text>
+        <text x="170" y="181" text-anchor="middle" font-size="16">💀</text>
+
+        <!-- Bots around -->
+        <g>
+          <!-- Top -->
+          <circle cx="170" cy="52" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse"/>
+          <text x="170" y="49" text-anchor="middle" font-size="14">💻</text>
+          <text x="170" y="66" text-anchor="middle" fill="#5a7090" font-size="8">PL</text>
+          <line x1="170" y1="74" x2="170" y2="132" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Top-right -->
+          <circle cx="270" cy="90" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:0.4s"/>
+          <text x="270" y="87" text-anchor="middle" font-size="14">📱</text>
+          <text x="270" y="104" text-anchor="middle" fill="#5a7090" font-size="8">US</text>
+          <line x1="252" y1="103" x2="206" y2="143" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Right -->
+          <circle cx="298" cy="192" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:0.8s"/>
+          <text x="298" y="189" text-anchor="middle" font-size="14">📡</text>
+          <text x="298" y="206" text-anchor="middle" fill="#5a7090" font-size="8">CN</text>
+          <line x1="276" y1="192" x2="208" y2="182" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Bottom-right -->
+          <circle cx="260" cy="285" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:1.2s"/>
+          <text x="260" y="282" text-anchor="middle" font-size="14">🖨️</text>
+          <text x="260" y="299" text-anchor="middle" fill="#5a7090" font-size="8">DE</text>
+          <line x1="245" y1="265" x2="197" y2="203" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Bottom-left -->
+          <circle cx="80" cy="280" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:0.6s"/>
+          <text x="80" y="277" text-anchor="middle" font-size="14">📺</text>
+          <text x="80" y="294" text-anchor="middle" fill="#5a7090" font-size="8">BR</text>
+          <line x1="96" y1="262" x2="147" y2="204" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Left -->
+          <circle cx="42" cy="180" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:1.0s"/>
+          <text x="42" y="177" text-anchor="middle" font-size="14">💡</text>
+          <text x="42" y="194" text-anchor="middle" fill="#5a7090" font-size="8">RU</text>
+          <line x1="64" y1="178" x2="132" y2="172" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+
+          <!-- Top-left -->
+          <circle cx="72" cy="86" r="22" fill="#0c1220" stroke="#ff3c6e" stroke-width="1.5" class="bot-pulse" style="animation-delay:1.4s"/>
+          <text x="72" y="83" text-anchor="middle" font-size="14">🔌</text>
+          <text x="72" y="100" text-anchor="middle" fill="#5a7090" font-size="8">IN</text>
+          <line x1="88" y1="101" x2="140" y2="140" stroke="#ff3c6e" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        </g>
+
+        <text x="170" y="328" text-anchor="middle" fill="#ff3c6e" font-size="9" letter-spacing="2">BOTNET — 7 krajów, 1 cel</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- E-SPORT IMPACT -->
+<section id="esport">
+  <div class="section-label">// 05 — kontekst turniejowy</div>
+  <h2 class="section-title">DDoS w świecie e-sportu</h2>
+  <div class="section-divider"></div>
+
+  <div class="def-card reveal">
+    <p>
+      Turnieje e-sportowe to dziś <strong>wielomilionowe eventy</strong> — ataki DDoS stanowią dla nich poważne zagrożenie. 
+      Gracze, organizatorzy i sponsorzy tracą pieniądze i reputację gdy serwery padają. 
+      Przypadki ataków podczas turniejów <strong>CS2, LoL, DOTA 2</strong> to nie teoria — to udokumentowana rzeczywistość.
+    </p>
+  </div>
+
+  <div class="impact-grid reveal">
+    <div class="impact-card">
+      <span class="impact-icon">⏱️</span>
+      <h4>PRZERWY W GRZE</h4>
+      <p>Mecze przerywane w połowie rundy. Gracze tracą koncentrację, wyniki są unieważniane lub powtarzane.</p>
+    </div>
+    <div class="impact-card">
+      <span class="impact-icon">💰</span>
+      <h4>STRATY FINANSOWE</h4>
+      <p>Organizatorzy tracą na transmisji i reklamach. Pula nagród może być opóźniona lub w spornych okolicznościach.</p>
+    </div>
+    <div class="impact-card">
+      <span class="impact-icon">📺</span>
+      <h4>STREAMING OFFLINE</h4>
+      <p>Tysiące widzów na Twitchu/YouTube traci transmisję. Wizerunkowe straty dla organizatora turnieju.</p>
+    </div>
+    <div class="impact-card">
+      <span class="impact-icon">🏆</span>
+      <h4>MANIPULACJA WYNIKAMI</h4>
+      <p>Ataki mogą być wymierzone w konkretnego gracza (jego home IP) — nieuczciwa przewaga dla przeciwnika.</p>
+    </div>
+    <div class="impact-card">
+      <span class="impact-icon">🔐</span>
+      <h4>UJAWNIANIE IP</h4>
+      <p>Przez wycieki IP (np. przez Discord czy stream) gracze sami stają się celem. Dlatego zawodowcy ukrywają swoje adresy.</p>
+    </div>
+    <div class="impact-card">
+      <span class="impact-icon">⚖️</span>
+      <h4>KONSEKWENCJE PRAWNE</h4>
+      <p>Atak DDoS to przestępstwo kryminalne — art. 268a KK. Kara pozbawienia wolności do 3 lat.</p>
+    </div>
+  </div>
+
+  <div class="highlight-box reveal">
+    <p>
+      <strong>🎮 Znane przypadki:</strong> Podczas turnieju ESL One 2019 gracze zgłaszali ataki DDoS wymierzone bezpośrednio w ich domowe sieci. W 2020 r. ataki na infrastrukturę Riot Games powodowały regularne problemy z serwerami rankingowymi. Organizacje jak <strong>LAN (Local Area Network)</strong> — gdzie gracze grają z jednej lokalizacji — są znacznie trudniejszym celem niż turnieje online.
+    </p>
+  </div>
+</section>
+
+<!-- OCHRONA -->
+<section id="ochrona">
+  <div class="section-label">// 06 — obrona</div>
+  <h2 class="section-title">Metody ochrony przed DDoS</h2>
+  <div class="section-divider"></div>
+
+  <div class="protection-grid">
+    <div class="prot-card reveal">
+      <h4>🛡️ DDoS MITIGATION SERVICE</h4>
+      <p>Specjalistyczne usługi jak Cloudflare, Akamai lub AWS Shield filtrują złośliwy ruch zanim dotrze do serwera. Ruch jest „czyszczony" w centrach scrubbing.</p>
+      <span class="prot-tag">CLOUDFLARE / AWS SHIELD / AKAMAI</span>
+    </div>
+    <div class="prot-card reveal">
+      <h4>🔀 LOAD BALANCING</h4>
+      <p>Ruch rozdzielany jest między wiele serwerów. Nawet przy ataku nie jeden serwer, ale cała infrastruktura musi zostać przeciążona — dużo trudniejsze zadanie.</p>
+      <span class="prot-tag">INFRASTRUKTURA ROZPROSZONA</span>
+    </div>
+    <div class="prot-card reveal">
+      <h4>📊 RATE LIMITING</h4>
+      <p>Serwer ustala maksymalną liczbę połączeń z jednego IP w określonym czasie. Boty przekraczające limit są automatycznie blokowane.</p>
+      <span class="prot-tag">OGRANICZENIE RUCHU / IP</span>
+    </div>
+    <div class="prot-card reveal">
+      <h4>🔍 ANOMALY DETECTION</h4>
+      <p>Systemy AI analizują wzorce ruchu w czasie rzeczywistym. Nagłe skoki o 1000% to sygnał ataku — automatyczne uruchamianie ochrony.</p>
+      <span class="prot-tag">AI / MACHINE LEARNING</span>
+    </div>
+    <div class="prot-card reveal">
+      <h4>🌍 ANYCAST ROUTING</h4>
+      <p>Ten sam adres IP istnieje w wielu lokalizacjach na świecie. Ruch ataku jest rozpraszany geograficznie, żaden punkt nie zostaje przeciążony.</p>
+      <span class="prot-tag">INFRASTRUKTURA GLOBALNA</span>
+    </div>
+    <div class="prot-card reveal">
+      <h4>🎮 OCHRONA GRACZY</h4>
+      <p>VPN ukrywa prawdziwy adres IP gracza. Organizatorzy nie ujawniają IP serwerów turniejowych. W LAN-ach problem praktycznie nie istnieje.</p>
+      <span class="prot-tag">VPN / IP HIDING / LAN EVENTS</span>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-label">// 07 — sprawdź wiedzę</div>
+  <h2 class="section-title">Quiz: DDoS w praktyce</h2>
+  <div class="section-divider"></div>
+
+  <div class="quiz-wrap reveal">
+
+    <!-- Q1 -->
+    <div class="quiz-q" id="q1">
+      <p>1. Co oznacza skrót DDoS?</p>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="answer(this,'q1',false)">Direct Denial of Service</button>
+        <button class="quiz-btn" onclick="answer(this,'q1',true)">Distributed Denial of Service</button>
+        <button class="quiz-btn" onclick="answer(this,'q1',false)">Dynamic Destruction of Servers</button>
+        <button class="quiz-btn" onclick="answer(this,'q1',false)">Distributed Data Override System</button>
+      </div>
+      <div class="quiz-feedback" id="fb-q1"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-q" id="q2">
+      <p>2. Czym różni się DDoS od DoS?</p>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="answer(this,'q2',false)">DDoS atakuje tylko serwery DNS</button>
+        <button class="quiz-btn" onclick="answer(this,'q2',false)">DoS jest szybszy od DDoS</button>
+        <button class="quiz-btn" onclick="answer(this,'q2',true)">DDoS pochodzi z wielu urządzeń jednocześnie, DoS z jednego</button>
+        <button class="quiz-btn" onclick="answer(this,'q2',false)">DDoS szyfruje dane, DoS je usuwa</button>
+      </div>
+      <div class="quiz-feedback" id="fb-q2"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-q" id="q3">
+      <p>3. Co to jest botnet?</p>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="answer(this,'q3',false)">Rodzaj oprogramowania antywirusowego</button>
+        <button class="quiz-btn" onclick="answer(this,'q3',true)">Sieć zainfekowanych urządzeń kontrolowanych przez hakera</button>
+        <button class="quiz-btn" onclick="answer(this,'q3',false)">Serwer do obsługi turniejów e-sportowych</button>
+        <button class="quiz-btn" onclick="answer(this,'q3',false)">Protokół sieciowy do szyfrowania danych</button>
+      </div>
+      <div class="quiz-feedback" id="fb-q3"></div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-q" id="q4">
+      <p>4. Który typ ataku DDoS jest najtrudniejszy do wykrycia i dlaczego?</p>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="answer(this,'q4',false)">Wolumetryczny — bo używa dużo danych</button>
+        <button class="quiz-btn" onclick="answer(this,'q4',false)">SYN Flood — bo wysyła dużo pakietów</button>
+        <button class="quiz-btn" onclick="answer(this,'q4',true)">Warstwy aplikacji (L7) — bo imituje normalny ruch użytkowników</button>
+        <button class="quiz-btn" onclick="answer(this,'q4',false)">UDP Flood — bo używa protokołu UDP</button>
+      </div>
+      <div class="quiz-feedback" id="fb-q4"></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-q" id="q5">
+      <p>5. Jaką metodę ochrony stosują gracze e-sportowi, by nie paść ofiarą ataku DDoS na ich domową sieć?</p>
+      <div class="quiz-options">
+        <button class="quiz-btn" onclick="answer(this,'q5',false)">Instalują dodatkowy procesor</button>
+        <button class="quiz-btn" onclick="answer(this,'q5',true)">Używają VPN, by ukryć swój prawdziwy adres IP</button>
+        <button class="quiz-btn" onclick="answer(this,'q5',false)">Wyłączają WiFi i grają offline</button>
+        <button class="quiz-btn" onclick="answer(this,'q5',false)">Zmieniają nazwę swojego konta co mecz</button>
+      </div>
+      <div class="quiz-feedback" id="fb-q5"></div>
+    </div>
+
+  </div>
+
+  <div id="quiz-score" style="display:none;margin-top:1.5rem;" class="def-card">
+    <p id="score-text"></p>
+  </div>
+</section>
+
+<footer>
+  <p>ATAKI DDoS — OCHRONA SIECI TURNIEJOWYCH &nbsp;|&nbsp; E-SPORT SEC &nbsp;|&nbsp; INF.03 &nbsp;|&nbsp; TECHNIKUM INFORMATYCZNE</p>
+  <p style="margin-top:0.4rem;font-size:0.6rem;color:#2a3a50">Materiał dydaktyczny — Klasa I — Rok szkolny 2025/2026</p>
+</footer>
+
+<script>
+  // REVEAL ON SCROLL
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // TABS
+  function switchTab(type) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('.type-card').forEach(c => {
+      if(type === 'all' || c.dataset.type === type) {
+        c.style.display = '';
+      } else {
+        c.style.display = 'none';
+      }
+    });
+  }
+
+  // QUIZ
+  const answers = {};
+  const feedbacks = {
+    'q1': { ok: '✓ Zgadza się! D — Distributed, czyli atak rozproszony z wielu źródeł jednocześnie.', fail: '✗ Niepoprawnie. DDoS = Distributed Denial of Service — Rozproszona Odmowa Usługi.' },
+    'q2': { ok: '✓ Dokładnie! DDoS jest wielokrotnie trudniejszy do zablokowania właśnie dlatego.', fail: '✗ Niepoprawnie. Kluczowa różnica: DoS = 1 urządzenie, DDoS = tysiące urządzeń jednocześnie.' },
+    'q3': { ok: '✓ Prawidłowo! Zainfekowane urządzenia to tzw. zombie lub boty — nie wiedzą, że są częścią ataku.', fail: '✗ Niepoprawnie. Botnet to sieć zainfekowanych urządzeń pod kontrolą hakera (serwer C&C).' },
+    'q4': { ok: '✓ Celnie! Ataki L7 wyglądają jak normalne zapytania HTTP — systemy ochrony muszą analizować kontekst, nie tylko wolumen.', fail: '✗ Niepoprawnie. Najtrudniejszy to atak warstwy aplikacji (L7) — imituje prawdziwych użytkowników.' },
+    'q5': { ok: '✓ Tak! VPN maskuje prawdziwy adres IP — atakujący nie wie gdzie wysłać atak.', fail: '✗ Niepoprawnie. Rozwiązaniem jest VPN — ukrywa prawdziwy adres IP gracza przed potencjalnym napastnikiem.' }
+  };
+
+  let answered = 0;
+  let correct = 0;
+  const total = 5;
+
+  function answer(btn, qid, isCorrect) {
+    if(answers[qid] !== undefined) return;
+    answers[qid] = isCorrect;
+    answered++;
+    if(isCorrect) correct++;
+
+    const parent = document.getElementById(qid);
+    parent.querySelectorAll('.quiz-btn').forEach(b => b.disabled = true);
+    btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const fb = document.getElementById('fb-' + qid);
+    fb.textContent = feedbacks[qid][isCorrect ? 'ok' : 'fail'];
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'fail');
+
+    if(answered === total) {
+      const score = document.getElementById('quiz-score');
+      const text = document.getElementById('score-text');
+      score.style.display = '';
+      const pct = Math.round(correct/total*100);
+      let msg = '';
+      if(pct >= 80) msg = '🏆 Świetny wynik! Jesteś gotowy bronić sieci turniejowych.';
+      else if(pct >= 60) msg = '👍 Niezły wynik! Przejrzyj jeszcze raz typy ataków i metody ochrony.';
+      else msg = '📚 Wróć do materiału — szczególnie do schematu ataku i typów DDoS.';
+      text.innerHTML = `<strong style="color:var(--neon)">Wynik: ${correct}/${total} (${pct}%)</strong><br>${msg}`;
+    }
+  }
+</script>
+</body>
+</html>

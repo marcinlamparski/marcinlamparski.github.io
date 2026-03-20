@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastruktura Techniczna E-Sportu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #ffffff;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #00d9ff 0%, #7b2cbf 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: rgba(26, 31, 58, 0.8);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            border-left: 5px solid;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateX(5px);
+        }
+        
+        .section.security { border-color: #00d9ff; }
+        .section.network { border-color: #7b2cbf; }
+        .section.qos { border-color: #ff006e; }
+        .section.ddos { border-color: #ffa500; }
+        .section.servers { border-color: #00ff88; }
+        
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1.3em;
+        }
+        
+        .security .icon { background: #00d9ff; color: #0a0e27; }
+        .network .icon { background: #7b2cbf; }
+        .qos .icon { background: #ff006e; }
+        .ddos .icon { background: #ffa500; color: #0a0e27; }
+        .servers .icon { background: #00ff88; color: #0a0e27; }
+        
+        h3 {
+            color: #00d9ff;
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: rgba(45, 53, 86, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+        
+        .card h4 {
+            color: #00d9ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .highlight {
+            background: rgba(0, 217, 255, 0.15);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 3px solid #00d9ff;
+        }
+        
+        .tooltip {
+            background: rgba(255, 0, 110, 0.2);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            color: #ff006e;
+            border: 1px solid #ff006e;
+            cursor: help;
+            display: inline-block;
+        }
+        
+        .example {
+            background: rgba(123, 44, 191, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .example::before {
+            content: "💡 Przykład z życia: ";
+            font-weight: bold;
+            color: #7b2cbf;
+            font-style: normal;
+        }
+        
+        ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            padding-left: 10px;
+        }
+        
+        strong {
+            color: #00d9ff;
+        }
+        
+        .tech-term {
+            color: #ff006e;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Infrastruktura Techniczna E-Sportu</h1>
+            <p class="subtitle">Jak zapewnić bezpieczeństwo i wydajność w profesjonalnych rozgrywkach</p>
+        </header>
+
+        <!-- Sekcja 1: Bezpieczeństwo -->
+        <section class="section security">
+            <h2>
+                <span class="icon">🔐</span>
+                Bezpieczeństwo Tożsamości i Kont Graczy
+            </h2>
+            
+            <p>W e-sporcie chronienie konta gracza to podstawa. Utrata dostępu do konta może oznaczać utratę lat pracy, skórek za tysiące złotych czy dostępu do turniejów!</p>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>🔑 Szyfrowanie</h4>
+                    <p><span class="tooltip">Algorytm szyfrowania</span> to sposób na "zakodowanie" hasła tak, żeby nikt nie mógł go przeczytać.</p>
+                    <div class="example">
+                        Twoje hasło "Gracz123" zostaje zamienione na coś w stylu "8f7h2k9p1x" - nawet jak ktoś ukradnie bazę danych, nie odczyta prawdziwego hasła.
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>🗝️ Menedżery haseł</h4>
+                    <p>Program, który <strong>bezpiecznie zapisuje</strong> wszystkie Twoje hasła. Musisz pamiętać tylko jedno <span class="tooltip">hasło główne</span>.</p>
+                    <ul>
+                        <li>LastPass</li>
+                        <li>1Password</li>
+                        <li>Bitwarden (darmowy!)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 Uwierzytelnianie 2FA</h4>
+                    <p><span class="tech-term">2FA</span> = Two-Factor Authentication = <strong>podwójna weryfikacja</strong></p>
+                    <div class="example">
+                        Logujesz się do Steam: wpisujesz hasło (krok 1), potem wpisujesz kod z telefonu (krok 2). Nawet jak ktoś ukradnie hasło, bez Twojego telefonu się nie zaloguje!
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>🌐 VPN (Virtual Private Network)</h4>
+                    <p><span class="tooltip">VPN</span> = wirtualny tunel szyfrujący Twoje połączenie internetowe</p>
+                    <p><strong>Po co?</strong></p>
+                    <ul>
+                        <li>Ukrywa Twój prawdziwy adres IP</li>
+                        <li>Szyfruje ruch (nikt nie podsłucha)</li>
+                        <li>Ochrona przed atakami DDoS na graczy</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sekcja 2: Sieć LAN -->
+        <section class="section network">
+            <h2>
+                <span class="icon">🔌</span>
+                Budowa Sieci dla Wydarzeń E-Sportowych
+            </h2>
+            
+            <p>Na wielkich turniejach (np. Intel Extreme Masters) może grać 100+ osób równocześnie. Sieć musi być <strong>szybka, stabilna i bezpieczna</strong>!</p>
+            
+            <h3>🗺️ Topologie sieciowe (jak połączyć komputery)</h3>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>⭐ Topologia gwiazdy</h4>
+                    <p>Wszystkie komputery podłączone do jednego <span class="tech-term">switcha</span> (przełącznika) - <strong>najlepsza dla turniejów!</strong></p>
+                    <p>✅ Jak jeden komputer padnie, reszta działa<br>
+                    ✅ Łatwo znaleźć problem</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🔧 Switch zarządzalny</h4>
+                    <p>Zaawansowany przełącznik, który możesz <strong>konfigurować</strong> (zwykły switch tylko przekazuje dane)</p>
+                    <p><strong>Możesz:</strong></p>
+                    <ul>
+                        <li>Tworzyć VLAN-y</li>
+                        <li>Priorytetyzować ruch</li>
+                        <li>Monitorować obciążenie</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight">
+                <h4>🏷️ Co to jest VLAN?</h4>
+                <p><span class="tech-term">VLAN</span> (Virtual Local Area Network) = <strong>wirtualna sieć w sieci</strong></p>
+                <div class="example">
+                    Masz jeden switch fizyczny, ale tworzysz na nim 3 oddzielne "wirtualne sieci":
+                    <ul>
+                        <li><strong>VLAN 10</strong> - stanowiska graczy (porty 1-20)</li>
+                        <li><strong>VLAN 20</strong> - serwery gier (porty 21-24)</li>
+                        <li><strong>VLAN 30</strong> - streaming i obserwatorzy (porty 25-30)</li>
+                    </ul>
+                    Dlaczego? <strong>Separacja ruchu!</strong> Graczom nie przeszkadza ruch ze streamingu, serwery są odizolowane.
+                </div>
+            </div>
+            
+            <h3>🛠️ Cisco Packet Tracer</h3>
+            <p>Darmowy symulator sieci od Cisco - możesz <strong>projektować i testować sieci bez kupowania sprzętu!</strong></p>
+            <div class="example">
+                Układasz wirtualne routery, switche, komputery, podpinasz kable - i testujesz czy pakiety dochodzą. Idealne do nauki przed prawdziwym turniejem!
+            </div>
+        </section>
+
+        <!-- Sekcja 3: QoS -->
+        <section class="section qos">
+            <h2>
+                <span class="icon">⚡</span>
+                Quality of Service (QoS) - Priorytetyzacja Ruchu
+            </h2>
+            
+            <p><span class="tech-term">QoS</span> = Quality of Service = <strong>Jakość Usług</strong> - czyli kto ma pierwszeństwo w sieci</p>
+            
+            <div class="highlight">
+                <h4>❓ Problem do rozwiązania:</h4>
+                <p>W sieci dzieje się dużo naraz:</p>
+                <ul>
+                    <li>Gracz strzela w CS:GO (wymaga <strong>niskiego pinga</strong>!)</li>
+                    <li>Ktoś ściąga patch gry 50GB (zajmuje całe łącze)</li>
+                    <li>Stream na Twitchu (potrzebuje stabilności)</li>
+                </ul>
+                <p><strong>Kto ma pierwszeństwo?</strong> QoS to rozwiązuje!</p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>📊 Identyfikacja ruchu gry</h4>
+                    <p>Router musi "rozpoznać" pakiety z gry (np. po numerze portu 27015 dla CS:GO)</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🎯 Priorytetyzacja</h4>
+                    <p>Pakiety gry dostają <strong>zielone światło</strong> i omijają kolejkę!</p>
+                    <p><strong>Hierarchia:</strong></p>
+                    <ol>
+                        <li>🥇 Pakiety gry (najwyższy priorytet)</li>
+                        <li>🥈 VoIP (Discord, TeamSpeak)</li>
+                        <li>🥉 Streaming</li>
+                        <li>Reszta (pobieranie, YouTube)</li>
+                    </ol>
+                </div>
+                
+                <div class="card">
+                    <h4>⏱️ Minimalizacja opóźnień</h4>
+                    <p><span class="tooltip">Ping</span> = czas reakcji sieci (ile trwa wysłanie i otrzymanie pakietu)</p>
+                    <p><span class="tooltip">Jitter</span> = niestabilność pinga (raz 20ms, raz 80ms = źle!)</p>
+                    <div class="example">
+                        Dobry ping w CS:GO: 5-20ms<br>
+                        Akceptowalny: do 50ms<br>
+                        Zły: powyżej 80ms (lagi, teleportacja)
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>🔍 Narzędzia monitorowania</h4>
+                    <p><strong>Ping</strong> - sprawdza opóźnienie do serwera<br>
+                    <strong>Traceroute</strong> - pokazuje trasę pakietu przez internet<br>
+                    <strong>NetFlow</strong> - analizuje cały ruch w sieci<br>
+                    <strong>SNMP</strong> - monitoruje stan urządzeń sieciowych</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sekcja 4: DDoS -->
+        <section class="section ddos">
+            <h2>
+                <span class="icon">🛡️</span>
+                Ochrona przed Atakami DDoS
+            </h2>
+            
+            <p><span class="tech-term">DDoS</span> = Distributed Denial of Service = <strong>Rozproszony atak typu "odmowa usługi"</strong></p>
+            
+            <div class="highlight">
+                <h4>🎯 Jak działa atak DDoS?</h4>
+                <div class="example">
+                    Wyobraź sobie, że jesteś bramkarzem na koncert (serwer gry). Normalnie wpuszczasz fanów jeden po drugim. Nagle przyjeżdża 10 000 ludzi naraz i wszyscy próbują wejść jednocześnie - <strong>totalna blokada!</strong>
+                    <br><br>
+                    W sieci: atakujący wysyła MILIONY fałszywych zapytań na serwer, który się przeciąża i przestaje odpowiadać prawdziwym graczom.
+                </div>
+            </div>
+            
+            <h3>🛡️ Metody ochrony:</h3>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>🚧 Filtrowanie ruchu</h4>
+                    <p>Odrzucanie podejrzanych pakietów <strong>zanim dotrą do serwera</strong></p>
+                    <ul>
+                        <li>Blokowanie znanych złych IP</li>
+                        <li>Limit zapytań z jednego źródła</li>
+                        <li>Weryfikacja prawdziwych użytkowników</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔥 Firewall (Zapora)</h4>
+                    <p><span class="tooltip">Firewall</span> = "ściana ogniowa" - przepuszcza tylko dozwolony ruch</p>
+                    <p>Można ustawić reguły:</p>
+                    <ul>
+                        <li>Przepuszczaj tylko graczy z Steam</li>
+                        <li>Blokuj połączenia z Chin/Rosji (jeśli turniej EU)</li>
+                        <li>Max 100 połączeń/sekundę z jednego IP</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🧹 Scrubbing Center</h4>
+                    <p>Specjalny <strong>ośrodek czyszczący ruch</strong></p>
+                    <div class="example">
+                        Cały ruch najpierw trafia do scrubbing center (np. Cloudflare), który "filtruje śmieci" i wysyła do Twojego serwera tylko czysty ruch od prawdziwych graczy.
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>🔐 Protokoły szyfrujące</h4>
+                    <p>Szyfrowanie połączenia utrudnia ataki i podsłuchiwanie</p>
+                    <ul>
+                        <li>HTTPS (bezpieczne www)</li>
+                        <li>TLS (szyfrowanie danych)</li>
+                        <li>IPsec (szyfrowanie całego ruchu IP)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="example">
+                <strong>Realny przypadek:</strong> Podczas finałów League of Legends 2012 roku serwery dostały atak DDoS i mecz musiał być przerwany na kilka godzin. Od tego czasu Riot Games używa Cloudflare i dedykowanych zabezpieczeń DDoS.
+            </div>
+        </section>
+
+        <!-- Sekcja 5: Serwery -->
+        <section class="section servers">
+            <h2>
+                <span class="icon">🖥️</span>
+                Architektura Serwerów Gier
+            </h2>
+            
+            <h3>💡 Dedykowane vs. Chmurowe</h3>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>🏢 Serwer dedykowany</h4>
+                    <p><strong>Fizyczna maszyna</strong> tylko dla Ciebie w centrum danych</p>
+                    <p>✅ Pełna kontrola<br>
+                    ✅ Przewidywalna wydajność<br>
+                    ✅ Niski ping (jak blisko graczy)<br>
+                    ❌ Drogi<br>
+                    ❌ Trzeba utrzymywać</p>
+                </div>
+                
+                <div class="card">
+                    <h4>☁️ Chmura (AWS, Azure, GCP)</h4>
+                    <p><strong>Wirtualne maszyny</strong> wynajmowane "na chwilę"</p>
+                    <p>✅ Płacisz tylko za użycie<br>
+                    ✅ Szybkie uruchomienie<br>
+                    ✅ Skalowanie w górę/dół<br>
+                    ❌ Mniej kontroli<br>
+                    ❌ Może być drożej długoterminowo</p>
+                </div>
+            </div>
+            
+            <div class="highlight">
+                <h4>📦 Konteneryzacja (Docker)</h4>
+                <p><span class="tech-term">Kontener</span> = "paczka" z grą i wszystkim czego potrzebuje do działania</p>
+                <div class="example">
+                    Zamiast instalować CS:GO serwer "na goło" na systemie, pakujesz go w kontener Docker. Możesz wtedy uruchomić 10 kopii tego samego serwera w sekundę - każdy w swoim "pudełku", odizolowany od reszty.
+                    <br><br>
+                    <strong>Dlaczego to ważne na turnieju?</strong><br>
+                    Potrzebujesz 50 serwerów na eliminacje → włączasz 50 kontenerów<br>
+                    Finał: zostało 8 graczy → gasicie 45 kontenerów, oszczędzacie zasoby
+                </div>
+            </div>
+            
+            <h3>📈 Auto-scaling (Automatyczne skalowanie)</h3>
+            
+            <div class="example">
+                <strong>Scenariusz:</strong> Organizujesz turniej w Fortnite
+                <ul>
+                    <li><strong>16:00</strong> - Rejestracja: 50 graczy online → system automatycznie uruchamia 2 serwery</li>
+                    <li><strong>18:00</strong> - Początek: 500 graczy → system sam dodaje 18 serwerów!</li>
+                    <li><strong>22:00</strong> - Koniec: zostało 30 graczy → system zmniejsza do 1 serwera</li>
+                </ul>
+                <strong>Płacisz tylko za realnie użyte zasoby!</strong>
+            </div>
+            
+            <div class="content-grid">
+                <div class="card">
+                    <h4>⚖️ Load Balancer</h4>
+                    <p><span class="tooltip">Load Balancer</span> = "Rozdzielacz obciążenia"</p>
+                    <p>Rozdziela graczy równomiernie między serwery - nikt nie czeka, wszyscy grają!</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 Monitorowanie</h4>
+                    <p>Na dużych turniejach monitoruje się <strong>w czasie rzeczywistym:</strong></p>
+                    <ul>
+                        <li>Obciążenie CPU/RAM serwerów</li>
+                        <li>Ping graczy</li>
+                        <li>Liczba aktywnych połączeń</li>
+                        <li>Alerty gdy coś idzie nie tak</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>📚 Materiał edukacyjny - Infrastruktura Techniczna E-Sportu | Technikum, Klasa 1</p>
+            <p>💡 Pamiętaj: Te technologie są używane na prawdziwych turniejach takich jak Intel Extreme Masters!</p>
+        </footer>
+    </div>
+</body>
+</html>
